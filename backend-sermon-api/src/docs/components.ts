@@ -1,3 +1,4 @@
+import { adminSchemas } from './admin.js';
 import { studyPlanSchemas } from './studyPlans.js';
 /** Reusable OpenAPI components: security scheme, schemas (with examples) and error responses. */
 
@@ -27,6 +28,7 @@ export const securitySchemes = {
 
 export const schemas = {
   ...studyPlanSchemas,
+  ...adminSchemas,
   // ---------------------------------------------------------------- core
   User: {
     type: 'object',
@@ -34,6 +36,7 @@ export const schemas = {
       id: uuid(ID1),
       name: { type: 'string', example: 'Grace Okafor' },
       email: { type: 'string', format: 'email', example: 'grace@example.com' },
+      isActive: { type: 'boolean', example: true },
       role: { type: 'string', enum: ['member', 'leader', 'admin'], example: 'member' },
       createdAt: ts('2026-10-01T09:00:00.000Z'),
       updatedAt: ts('2026-10-01T09:00:00.000Z'),
@@ -44,6 +47,7 @@ export const schemas = {
     properties: {
       id: uuid(ID2),
       title: { type: 'string', example: 'Walking in Grace' },
+      status: { type: 'string', enum: ['draft', 'published', 'archived'], default: 'published' },
       preacher: { type: 'string', example: 'Pastor John Adeyemi' },
       passage: { type: 'string', example: 'Ephesians 2:1-10' },
       sermonDate: { type: 'string', format: 'date', example: '2026-09-27' },
@@ -102,6 +106,7 @@ export const schemas = {
     properties: {
       groupId: uuid(ID1),
       userId: uuid(ID2),
+      isActive: { type: 'boolean', example: true },
       role: { type: 'string', enum: ['leader', 'member'], example: 'member' },
       user: { type: 'object', properties: { id: uuid(ID2), name: { type: 'string', example: 'Grace Okafor' } } },
       createdAt: { ...ts('2026-10-03T12:00:00.000Z'), description: 'Join date' },
@@ -161,6 +166,7 @@ export const schemas = {
     required: ['title', 'preacher', 'passage', 'sermonDate'],
     properties: {
       title: { type: 'string', maxLength: 255 },
+      status: { type: 'string', enum: ['draft', 'published', 'archived'], default: 'published' },
       preacher: { type: 'string', maxLength: 150 },
       passage: { type: 'string', maxLength: 150 },
       sermonDate: { type: 'string', format: 'date' },

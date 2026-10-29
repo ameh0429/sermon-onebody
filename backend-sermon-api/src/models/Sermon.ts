@@ -3,6 +3,7 @@ import { sequelize } from '../config/database.js';
 
 export class Sermon extends Model<InferAttributes<Sermon>, InferCreationAttributes<Sermon>> {
   declare id: CreationOptional<string>;
+  declare status: CreationOptional<'draft' | 'published' | 'archived'>;
   declare title: string;
   declare preacher: string;
   declare passage: string;
@@ -19,6 +20,7 @@ export class Sermon extends Model<InferAttributes<Sermon>, InferCreationAttribut
 Sermon.init(
   {
     id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+    status: { type: DataTypes.ENUM('draft', 'published', 'archived'), allowNull: false, defaultValue: 'published' },
     title: { type: DataTypes.STRING(255), allowNull: false },
     preacher: { type: DataTypes.STRING(150), allowNull: false },
     passage: { type: DataTypes.STRING(150), allowNull: false },

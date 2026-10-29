@@ -29,6 +29,7 @@ export const roleBody = z.object({ role: z.enum(ROLES) });
 
 // --- Sermons -------------------------------------------------------------
 export const sermonBody = z.object({
+  status: z.enum(['draft', 'published', 'archived']).optional(),
   title: text(255),
   preacher: text(150),
   passage: text(150),
@@ -42,6 +43,7 @@ export const sermonBody = z.object({
 export const sermonUpdateBody = sermonBody.partial().refine(atLeastOne, 'At least one field is required');
 
 export const sermonListQuery = z.object({
+  status: z.enum(['draft', 'published', 'archived']).optional(),
   ...pagination,
   q: z.string().trim().max(200).optional(),
   preacher: z.string().trim().max(150).optional(),
@@ -109,3 +111,9 @@ export const dailyLessonDayParam = z.object({ studyPlanId: uuid, day: z.coerce.n
 export const dailyLessonIdParam = z.object({ dailyLessonId: uuid });
 export const attachStudyPlanBody = z.object({ sermonId: uuid }).strict();
 export const lessonProgressBody = z.object({ completed: z.boolean() }).strict();
+
+// Dashboard management
+export const accountStatusBody = z.object({ isActive: z.boolean() }).strict();
+export const engagementBody = z.object({ event: z.enum(['view', 'listen']) }).strict();
+export const studyPlanUpdateBody = z.object({ title: text(255).optional(), description: text(5000).nullable().optional() }).strict().refine(atLeastOne, 'At least one field is required');
+export const dailyLessonUpdateBody = dailyLessonBody.partial().refine(atLeastOne, 'At least one field is required');

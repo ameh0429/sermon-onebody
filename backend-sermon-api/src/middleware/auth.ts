@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import jwt, { type SignOptions } from 'jsonwebtoken';
 import { env } from '../config/env.js';
 import { AppError } from '../utils/AppError.js';
+import { User } from '../models/User.js';
 import type { Role } from '../types.js';
 
 export interface AuthUser {
@@ -26,7 +27,7 @@ export function signToken(user: AuthUser): string {
 }
 
 /** Requires a valid `Authorization: Bearer <jwt>` header. */
-export function authenticate(req: Request, _res: Response, next: NextFunction) {
+export async function authenticate(req: Request, _res: Response, next: NextFunction) {
   const header = req.headers.authorization;
   if (!header?.startsWith('Bearer ')) throw AppError.unauthorized('Missing or malformed Authorization header');
 
@@ -34,7 +35,9 @@ export function authenticate(req: Request, _res: Response, next: NextFunction) {
   const payload = jwt.verify(token, env.jwtSecret); // throws JsonWebTokenError / TokenExpiredError -> 401 via error handler
   if (typeof payload === 'string' || !payload.sub || !payload.role) throw AppError.unauthorized('Invalid token payload');
 
-  req.user = { id: payload.sub, role: payload.role as Role };
+  const account = await User.findByPk(payload.sub);
+  if (!account || !account.isActive) throw AppError.unauthorized('Account is inactive or no longer exists');
+  req.user = { id: account.id, role: account.role };
   next();
 }
 

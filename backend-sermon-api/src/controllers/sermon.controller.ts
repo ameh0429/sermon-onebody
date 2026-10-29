@@ -2,10 +2,11 @@ import type { Request, Response } from 'express';
 import { Op, type WhereOptions } from 'sequelize';
 import { Sermon } from '../models/index.js';
 import { AppError } from '../utils/AppError.js';
-import { escapeLike, paginate, paginated, param } from '../utils/helpers.js';
+import { currentUser, escapeLike, paginate, paginated, param } from '../utils/helpers.js';
 import { invalidateSermonCache, sermonCache, sermonListKey } from '../services/sermonCache.js';
 
 interface ListQuery {
+  status?: 'draft' | 'published' | 'archived';
   page: number;
   limit: number;
   q?: string;
@@ -20,7 +21,9 @@ interface ListQuery {
 
 export async function listSermons(req: Request, res: Response) {
   const query = req.query as unknown as ListQuery;
-  const key = sermonListKey(query);
+  const staff = currentUser(req).role !== 'member';
+  if (!staff && query.status && query.status !== 'published') throw AppError.forbidden();
+  const key = sermonListKey({ ...query, staff });
 
   const cached = sermonCache.get(key);
   if (cached) {
@@ -29,6 +32,8 @@ export async function listSermons(req: Request, res: Response) {
   }
 
   const where: WhereOptions<Sermon>[] = [];
+  if (!staff) where.push({ status: 'published' });
+  else if (query.status) where.push({ status: query.status });
   const like = (value: string) => ({ [Op.iLike]: `%${escapeLike(value)}%` });
 
   if (query.q) where.push({ [Op.or]: [{ title: like(query.q) }, { summary: like(query.q) }, { passage: like(query.q) }] });
@@ -57,7 +62,7 @@ export async function listSermons(req: Request, res: Response) {
 
 export async function getSermon(req: Request, res: Response) {
   const sermon = await Sermon.findByPk(param(req, 'id'));
-  if (!sermon) throw AppError.notFound('Sermon not found');
+  if (!sermon || (sermon.status !== 'published' && currentUser(req).role === 'member')) throw AppError.notFound('Sermon not found');
   res.json({ status: 'success', data: sermon });
 }
 

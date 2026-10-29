@@ -6,13 +6,15 @@ import { currentUser, param } from '../utils/helpers.js';
 import type { z } from 'zod';
 import type { studyPlanBody } from '../validators/index.js';
 
-async function requirePlan(id: string) {
+async function requirePlan(id: string, req?: Request) {
   const plan = await StudyPlan.findByPk(id);
   if (!plan) throw AppError.notFound('Study plan not found');
+  if (plan.sermonId && req) await requireSermon(plan.sermonId, req);
   return plan;
 }
-async function requireSermon(id: string) {
-  if (!(await Sermon.findByPk(id, { attributes: ['id'] }))) throw AppError.notFound('Sermon not found');
+async function requireSermon(id: string, req?: Request) {
+  const sermon = await Sermon.findByPk(id, { attributes: ['id', 'status'] });
+  if (!sermon || (req && currentUser(req).role === 'member' && sermon.status !== 'published')) throw AppError.notFound('Sermon not found');
 }
 export async function createStudyPlan(req: Request, res: Response) {
   const { dailyLessons, ...body } = req.body as z.infer<typeof studyPlanBody>;
@@ -25,30 +27,33 @@ export async function createStudyPlan(req: Request, res: Response) {
   res.status(201).json({ status: 'success', data: result });
 }
 export async function attachStudyPlan(req: Request, res: Response) {
-  const plan = await requirePlan(param(req, 'studyPlanId'));
+  const plan = await requirePlan(param(req, 'studyPlanId'), req);
   await requireSermon(req.body.sermonId);
   await plan.update({ sermonId: req.body.sermonId });
   res.json({ status: 'success', data: plan });
 }
 export async function getStudyPlan(req: Request, res: Response) {
-  const plan = await requirePlan(param(req, 'studyPlanId'));
+  const plan = await requirePlan(param(req, 'studyPlanId'), req);
   const dailyLessons = await DailyLesson.findAll({ where: { studyPlanId: plan.id }, order: [['day', 'ASC']] });
   res.json({ status: 'success', data: { ...plan.toJSON(), dailyLessons } });
 }
 export async function getSermonStudyPlans(req: Request, res: Response) {
   const sermonId = param(req, 'sermonId');
-  await requireSermon(sermonId);
+  await requireSermon(sermonId, req);
   const plans = await StudyPlan.findAll({ where: { sermonId }, order: [['createdAt', 'ASC'], ['id', 'ASC']] });
   res.json({ status: 'success', data: plans });
 }
 export async function getDailyLesson(req: Request, res: Response) {
+  await requirePlan(param(req, 'studyPlanId'), req);
   const lesson = await DailyLesson.findOne({ where: { studyPlanId: param(req, 'studyPlanId'), day: Number(param(req, 'day')) } });
   if (!lesson) throw AppError.notFound('Daily lesson not found');
   res.json({ status: 'success', data: lesson });
 }
 export async function updateLessonProgress(req: Request, res: Response) {
   const dailyLessonId = param(req, 'dailyLessonId');
-  if (!(await DailyLesson.findByPk(dailyLessonId))) throw AppError.notFound('Daily lesson not found');
+  const lesson = await DailyLesson.findByPk(dailyLessonId);
+  if (!lesson) throw AppError.notFound('Daily lesson not found');
+  await requirePlan(lesson.studyPlanId, req);
   const userId = currentUser(req).id;
   const completed = req.body.completed as boolean;
   const result = await sequelize.transaction(async transaction => {
@@ -59,7 +64,7 @@ export async function updateLessonProgress(req: Request, res: Response) {
   res.json({ status: 'success', data: result });
 }
 export async function getStudyPlanProgress(req: Request, res: Response) {
-  const plan = await requirePlan(param(req, 'studyPlanId'));
+  const plan = await requirePlan(param(req, 'studyPlanId'), req);
   const lessons = await DailyLesson.findAll({ where: { studyPlanId: plan.id }, order: [['day', 'ASC']] });
   const progress = await LessonProgress.findAll({ where: { userId: currentUser(req).id, dailyLessonId: lessons.map(l => l.id) } });
   const byLesson = new Map(progress.map(p => [p.dailyLessonId, p]));

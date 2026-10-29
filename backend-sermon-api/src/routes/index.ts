@@ -1,3 +1,4 @@
+import { adminRouter } from './admin.routes.js';
 import { studyPlanRouter } from './studyPlan.routes.js';
 import { Router } from 'express';
 import { authRouter, usersRouter } from './auth.routes.js';
@@ -18,3 +19,5 @@ apiRouter.use('/groups', groupRouter);
 apiRouter.use(discussionRouter); // /groups/:groupId/posts, /sermons/:sermonId/posts, /posts/:id
 
 apiRouter.use(studyPlanRouter);
+
+apiRouter.use(adminRouter);

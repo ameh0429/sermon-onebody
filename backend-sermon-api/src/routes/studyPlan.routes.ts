@@ -13,7 +13,8 @@ studyPlanRouter.use(authenticate);
  *   post:
  *     tags:
  *     - StudyPlans
- *     summary: Create a weekly study plan with daily lessons (admin only)
+ *     - Admin
+ *     summary: Create a weekly study plan with daily lessons (pastor/leader or admin only)
  *     security:
  *     - bearerAuth: []
  *     responses:
@@ -45,7 +46,7 @@ studyPlanRouter.use(authenticate);
  *           schema:
  *             $ref: '#/components/schemas/StudyPlanInput'
  */
-studyPlanRouter.post('/study-plans', authorize('admin'), validate({ body: studyPlanBody }), createStudyPlan);
+studyPlanRouter.post('/study-plans', authorize('leader', 'admin'), validate({ body: studyPlanBody }), createStudyPlan);
 
 /**
  * @openapi
@@ -92,7 +93,8 @@ studyPlanRouter.get('/study-plans/:studyPlanId', validate({ params: studyPlanIdP
  *   put:
  *     tags:
  *     - StudyPlans
- *     summary: Attach or move a study plan to a sermon (admin only)
+ *     - Admin
+ *     summary: Attach or move a study plan to a sermon (pastor/leader or admin only)
  *     security:
  *     - bearerAuth: []
  *     responses:
@@ -131,7 +133,7 @@ studyPlanRouter.get('/study-plans/:studyPlanId', validate({ params: studyPlanIdP
  *           schema:
  *             $ref: '#/components/schemas/AttachStudyPlanInput'
  */
-studyPlanRouter.put('/study-plans/:studyPlanId/sermon', authorize('admin'), validate({ params: studyPlanIdParam, body: attachStudyPlanBody }), attachStudyPlan);
+studyPlanRouter.put('/study-plans/:studyPlanId/sermon', authorize('leader', 'admin'), validate({ params: studyPlanIdParam, body: attachStudyPlanBody }), attachStudyPlan);
 
 /**
  * @openapi

@@ -28,6 +28,7 @@ export const swaggerSpec = swaggerJSDoc({
     },
     servers: [{ url: '/api/v1', description: 'Current server' }],
     tags: [
+      { name: 'Admin', description: 'Pastor/leader content management and analytics; admin-only account management' },
       { name: 'StudyPlans', description: 'Weekly study plans attached to sermons' },
       { name: 'DailyLessons', description: 'Study lessons for days 1–7' },
       { name: 'LessonProgress', description: 'Your personal lesson completion and plan progress' },
