@@ -90,7 +90,7 @@ usersRouter.get('/me', authenticate, me);
  * @openapi
  * /users/{id}/role:
  *   patch:
- *     tags: [Users]
+ *     tags: [Users, Admin]
  *     summary: Change a user's role (admin only)
  *     description: Promote members to `leader` so they can create fellowship groups, or to `admin`.
  *     security: [{ bearerAuth: [] }]

@@ -55,3 +55,10 @@ LessonProgress.belongsTo(DailyLesson, { foreignKey: 'dailyLessonId', as: 'dailyL
 User.hasMany(LessonProgress, { foreignKey: 'userId', as: 'lessonProgress', onDelete: 'CASCADE' });
 LessonProgress.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 export { StudyPlan, DailyLesson, LessonProgress };
+
+import { SermonEngagement } from './SermonEngagement.js';
+User.hasMany(SermonEngagement, { foreignKey: 'userId', as: 'sermonEngagements', onDelete: 'CASCADE' });
+SermonEngagement.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+Sermon.hasMany(SermonEngagement, { foreignKey: 'sermonId', as: 'engagements', onDelete: 'CASCADE' });
+SermonEngagement.belongsTo(Sermon, { foreignKey: 'sermonId', as: 'sermon' });
+export { SermonEngagement };

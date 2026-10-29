@@ -22,10 +22,10 @@ Swagger UI is at `/docs`; the raw spec is at `/docs.json`. All endpoints live un
 | Role | Can |
 |---|---|
 | `member` (default on register) | Browse sermons, bookmark, keep a journal, join groups, post, flag |
-| `leader` | Everything above, plus create fellowship groups and moderate their own groups |
+| `leader` (pastor) | Everything above, content management, dashboard analytics, fellowship group creation and moderation of their own groups |
 | `admin` | Manage sermons and user roles; moderate any group |
 
-Roles are embedded in the JWT, so a promoted user must log in again to get the new role.
+Roles and account activation are checked against the database on every authenticated request. Role changes and deactivation take effect immediately, including for existing tokens.
 
 ## Endpoints
 
@@ -78,7 +78,7 @@ src/
 
 ## Weekly growth plans
 
-Admins create a plan with `POST /api/v1/study-plans`:
+Pastors/leaders and admins create a plan with `POST /api/v1/study-plans`:
 
 ```json
 {
@@ -90,7 +90,7 @@ Admins create a plan with `POST /api/v1/study-plans`:
 }
 ```
 
-A plan contains 1–7 lessons with unique day numbers from 1–7. `sermonId` is optional at creation. Admins can attach or move a plan using `PUT /study-plans/:studyPlanId/sermon` with `{ "sermonId": "..." }`. A sermon can have multiple plans; each plan belongs to at most one sermon. Creation of the plan and lessons is atomic.
+A plan contains 1–7 lessons with unique day numbers from 1–7. `sermonId` is optional at creation. Pastors/leaders and admins can attach or move a plan using `PUT /study-plans/:studyPlanId/sermon` with `{ "sermonId": "..." }`. A sermon can have multiple plans; each plan belongs to at most one sermon. Creation of the plan and lessons is atomic.
 
 All routes below require a bearer token and use the `/api/v1` prefix:
 
@@ -114,3 +114,38 @@ BASE_URL=http://localhost:3000 node --env-file=.env scripts/study-plan-smoke-tes
 ```
 
 The test checks validation, admin permissions, attachment, day lookup, private progress, completion resets, concurrent completion, and Swagger documentation. It cleans up its own fixtures. Restart the development API between this and the original smoke suite to reset authentication rate limits.
+
+## Pastor & Admin Dashboard API
+
+This stage adds backend APIs, not a dashboard frontend. Pastors use the existing `leader` role. Leaders and admins manage sermons and study plans and read aggregate analytics; only admins list/manage accounts. Existing sermon create/edit/delete and role-assignment endpoints are retained and appear under the Swagger **Admin** tag alongside the new endpoints. Every dashboard operation requires bearer authentication.
+
+Sermons now have `status`: `draft`, `published`, or `archived`. The default is `published` for compatibility with existing clients and content. Create drafts explicitly with `status: "draft"`; publish or restore via `PATCH /sermons/:id` with `{ "status": "published" }`. Staff can filter `GET /sermons?status=draft` (or published/archived); members only see published sermons. Staff and member list caches are separate. Members cannot read plans or lessons attached to unpublished sermons or update their progress.
+
+All paths use the `/api/v1` prefix:
+
+| Method | Path | Access / behavior |
+|---|---|---|
+| POST | `/sermons/:id/archive` | Leader/admin; archive without deleting content |
+| PATCH / DELETE | `/study-plans/:studyPlanId` | Leader/admin; edit metadata or delete plan with lessons/progress |
+| POST | `/study-plans/:studyPlanId/daily-lessons` | Leader/admin; add lesson (unique day 1–7) |
+| PATCH / DELETE | `/daily-lessons/:dailyLessonId` | Leader/admin; edit or delete lesson with its progress |
+| POST | `/sermons/:id/engagement` | Signed-in user; `{ "event": "view" }` or `{ "event": "listen" }` |
+| GET | `/admin/analytics` | Leader/admin; aggregate lifetime statistics |
+| GET | `/admin/users?page=1&limit=20` | Admin only; paginated accounts without password hashes |
+| PATCH | `/admin/users/:id/role` | Admin only; `{ "role": "member" }`, `leader`, or `admin`; existing `/users/:id/role` remains supported |
+| PATCH | `/admin/users/:id/status` | Admin only; `{ "isActive": false }` to deactivate or `true` to reactivate |
+
+Analytics returns `users` (total, active, inactive), `sermons` (total, draft, published, archived), `studyPlans` (total, dailyLessons, completedLessons), and `engagement` (uniqueViews, uniqueListens, bookmarks, journalEntries, groups, discussionPosts). Completed lessons count current completed user/lesson pairs, not distinct lessons. Engagement is explicitly reported by the client, once per user/sermon/event; repeated reporting returns the same row. Counts are lifetime counts of retained records, not playback duration, date-filtered metrics, or an immutable audit history. Private journal content and individual progress are never included in analytics.
+
+Account status and roles are looked up on every authenticated request. Deactivation blocks login and existing tokens immediately. Admins cannot deactivate or demote themselves. Deactivation preserves content; reactivation restores account access.
+
+Development: the existing `DB_SYNC=true` startup updates the schema. Production: apply `migrations/20261029_admin_dashboard.sql` to the existing database using `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/20261029_admin_dashboard.sql` before deploying this backend. Back up the database and use your normal deployment process. The SQL preserves existing sermons as published and accounts as active; it is safe to reapply.
+
+Dashboard integration tests:
+
+```bash
+npm run build
+BASE_URL=http://localhost:3000 node --env-file=.env scripts/admin-smoke-test.mjs
+```
+
+Use a development database with a seeded admin. The test checks permissions, status visibility and cache separation, unique engagement and analytics, plan/lesson management, immediate role updates, and deactivation. It removes its own fixtures. Restart the API between smoke suites to reset rate limits.

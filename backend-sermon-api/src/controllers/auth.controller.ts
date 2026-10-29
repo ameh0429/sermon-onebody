@@ -26,7 +26,7 @@ export async function login(req: Request, res: Response) {
 
   const user = await User.findOne({ where: { email } });
   const valid = await bcrypt.compare(password, user?.passwordHash ?? DUMMY_HASH);
-  if (!user || !valid) throw AppError.unauthorized('Invalid email or password');
+  if (!user || !user.isActive || !valid) throw AppError.unauthorized('Invalid email or password');
 
   res.json({ status: 'success', data: { user, token: signToken({ id: user.id, role: user.role }) } });
 }

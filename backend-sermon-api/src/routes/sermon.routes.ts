@@ -19,6 +19,7 @@ sermonRouter.use(authenticate);
  *     parameters:
  *       - $ref: '#/components/parameters/Page'
  *       - $ref: '#/components/parameters/Limit'
+ *       - { name: status, in: query, description: 'Staff only; members see published sermons', schema: { type: string, enum: [draft, published, archived] } }
  *       - { name: q, in: query, description: 'Search title, summary and passage', schema: { type: string } }
  *       - { name: preacher, in: query, description: 'Partial, case-insensitive match', schema: { type: string } }
  *       - { name: passage, in: query, description: 'Partial, case-insensitive match (e.g. "Ephesians")', schema: { type: string } }
@@ -79,8 +80,8 @@ sermonRouter.get('/:id', validate({ params: idParam }), getSermon);
  * @openapi
  * /sermons:
  *   post:
- *     tags: [Sermons]
- *     summary: Add a sermon (admin only)
+ *     tags: [Sermons, Admin]
+ *     summary: Add a sermon (pastor/leader or admin only)
  *     security: [{ bearerAuth: [] }]
  *     requestBody:
  *       required: true
@@ -101,14 +102,14 @@ sermonRouter.get('/:id', validate({ params: idParam }), getSermon);
  *       401: { $ref: '#/components/responses/Unauthorized' }
  *       403: { $ref: '#/components/responses/Forbidden' }
  */
-sermonRouter.post('/', authorize('admin'), validate({ body: sermonBody }), createSermon);
+sermonRouter.post('/', authorize('leader', 'admin'), validate({ body: sermonBody }), createSermon);
 
 /**
  * @openapi
  * /sermons/{id}:
  *   patch:
- *     tags: [Sermons]
- *     summary: Update a sermon (admin only)
+ *     tags: [Sermons, Admin]
+ *     summary: Update a sermon (pastor/leader or admin only)
  *     security: [{ bearerAuth: [] }]
  *     parameters:
  *       - $ref: '#/components/parameters/Id'
@@ -133,14 +134,14 @@ sermonRouter.post('/', authorize('admin'), validate({ body: sermonBody }), creat
  *       403: { $ref: '#/components/responses/Forbidden' }
  *       404: { $ref: '#/components/responses/NotFound' }
  */
-sermonRouter.patch('/:id', authorize('admin'), validate({ params: idParam, body: sermonUpdateBody }), updateSermon);
+sermonRouter.patch('/:id', authorize('leader', 'admin'), validate({ params: idParam, body: sermonUpdateBody }), updateSermon);
 
 /**
  * @openapi
  * /sermons/{id}:
  *   delete:
- *     tags: [Sermons]
- *     summary: Delete a sermon (admin only)
+ *     tags: [Sermons, Admin]
+ *     summary: Delete a sermon (pastor/leader or admin only)
  *     security: [{ bearerAuth: [] }]
  *     parameters:
  *       - $ref: '#/components/parameters/Id'
@@ -151,4 +152,4 @@ sermonRouter.patch('/:id', authorize('admin'), validate({ params: idParam, body:
  *       403: { $ref: '#/components/responses/Forbidden' }
  *       404: { $ref: '#/components/responses/NotFound' }
  */
-sermonRouter.delete('/:id', authorize('admin'), validate({ params: idParam }), deleteSermon);
+sermonRouter.delete('/:id', authorize('leader', 'admin'), validate({ params: idParam }), deleteSermon);
