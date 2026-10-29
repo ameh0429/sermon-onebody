@@ -1,3 +1,6 @@
+import { StudyPlan } from './StudyPlan.js';
+import { DailyLesson } from './DailyLesson.js';
+import { LessonProgress } from './LessonProgress.js';
 import { User } from './User.js';
 import { Sermon } from './Sermon.js';
 import { JournalEntry } from './JournalEntry.js';
@@ -41,3 +44,14 @@ DiscussionPost.hasMany(DiscussionPost, { foreignKey: 'parentPostId', as: 'replie
 DiscussionPost.belongsTo(DiscussionPost, { foreignKey: 'parentPostId', as: 'parent' });
 
 export { User, Sermon, JournalEntry, Bookmark, FellowshipGroup, GroupMember, DiscussionPost };
+
+// Weekly growth plans survive sermon deletion; lessons and progress follow their parents.
+Sermon.hasMany(StudyPlan, { foreignKey: 'sermonId', as: 'studyPlans', onDelete: 'SET NULL' });
+StudyPlan.belongsTo(Sermon, { foreignKey: 'sermonId', as: 'sermon' });
+StudyPlan.hasMany(DailyLesson, { foreignKey: 'studyPlanId', as: 'dailyLessons', onDelete: 'CASCADE' });
+DailyLesson.belongsTo(StudyPlan, { foreignKey: 'studyPlanId', as: 'studyPlan' });
+DailyLesson.hasMany(LessonProgress, { foreignKey: 'dailyLessonId', as: 'progress', onDelete: 'CASCADE' });
+LessonProgress.belongsTo(DailyLesson, { foreignKey: 'dailyLessonId', as: 'dailyLesson' });
+User.hasMany(LessonProgress, { foreignKey: 'userId', as: 'lessonProgress', onDelete: 'CASCADE' });
+LessonProgress.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+export { StudyPlan, DailyLesson, LessonProgress };

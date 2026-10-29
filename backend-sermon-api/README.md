@@ -75,3 +75,42 @@ src/
   routes/       routers with @openapi JSDoc
   scripts/      createAdmin
 ```
+
+## Weekly growth plans
+
+Admins create a plan with `POST /api/v1/study-plans`:
+
+```json
+{
+  "title": "Walking in Grace: Weekly Growth",
+  "sermonId": "9a7e4d22-0b1c-4c6f-8e3a-52d1f0c7b8a4",
+  "dailyLessons": [
+    { "day": 1, "title": "Receive grace", "passage": "Ephesians 2:1-10", "content": "Read the passage and reflect on grace as a gift." }
+  ]
+}
+```
+
+A plan contains 1–7 lessons with unique day numbers from 1–7. `sermonId` is optional at creation. Admins can attach or move a plan using `PUT /study-plans/:studyPlanId/sermon` with `{ "sermonId": "..." }`. A sermon can have multiple plans; each plan belongs to at most one sermon. Creation of the plan and lessons is atomic.
+
+All routes below require a bearer token and use the `/api/v1` prefix:
+
+| Method | Path | Behavior |
+|---|---|---|
+| GET | `/sermons/:sermonId/study-plans` | Fetch attached plans |
+| GET | `/study-plans/:studyPlanId` | Fetch plan with ordered lessons |
+| GET | `/study-plans/:studyPlanId/daily-lessons/:day` | Fetch a lesson by day |
+| PUT | `/daily-lessons/:dailyLessonId/progress` | Set your status with `{ "completed": true }` or `{ "completed": false }` |
+| GET | `/study-plans/:studyPlanId/progress` | Your completed count, percentage, and status for every lesson |
+
+Progress always belongs to the authenticated user. Missing progress counts as incomplete. Completing a lesson again preserves its original completion timestamp; resetting clears it. Deleting a sermon detaches its plans; deleting a plan or user cascades to dependent progress. Swagger includes StudyPlans, DailyLessons, and LessonProgress tags and their input/output schemas.
+
+The existing `DB_SYNC=true` development startup creates `study_plans`, `daily_lessons`, and `lesson_progress`, including foreign keys and unique indexes. Production deployments using `DB_SYNC=false` must apply equivalent schema changes through their deployment migration process before enabling these endpoints; this repository has no migration runner.
+
+Run the added integration checks against a development API with a seeded admin:
+
+```bash
+npm run build
+BASE_URL=http://localhost:3000 node --env-file=.env scripts/study-plan-smoke-test.mjs
+```
+
+The test checks validation, admin permissions, attachment, day lookup, private progress, completion resets, concurrent completion, and Swagger documentation. It cleans up its own fixtures. Restart the development API between this and the original smoke suite to reset authentication rate limits.

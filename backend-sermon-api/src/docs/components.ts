@@ -1,3 +1,4 @@
+import { studyPlanSchemas } from './studyPlans.js';
 /** Reusable OpenAPI components: security scheme, schemas (with examples) and error responses. */
 
 const uuid = (example: string) => ({ type: 'string', format: 'uuid', example });
@@ -25,6 +26,7 @@ export const securitySchemes = {
 };
 
 export const schemas = {
+  ...studyPlanSchemas,
   // ---------------------------------------------------------------- core
   User: {
     type: 'object',
