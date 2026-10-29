@@ -1,3 +1,4 @@
+import { studyPlanRouter } from './studyPlan.routes.js';
 import { Router } from 'express';
 import { authRouter, usersRouter } from './auth.routes.js';
 import { sermonRouter } from './sermon.routes.js';
@@ -15,3 +16,5 @@ apiRouter.use('/bookmarks', bookmarkRouter);
 apiRouter.use('/journal', journalRouter);
 apiRouter.use('/groups', groupRouter);
 apiRouter.use(discussionRouter); // /groups/:groupId/posts, /sermons/:sermonId/posts, /posts/:id
+
+apiRouter.use(studyPlanRouter);

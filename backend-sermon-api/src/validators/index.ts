@@ -89,3 +89,23 @@ export const postBody = z.object({
 export const postListQuery = z.object({ ...pagination, sermonId: uuid.optional() });
 export const sermonPostsQuery = z.object({ ...pagination, groupId: uuid.optional() });
 export const flagBody = z.object({ reason: text(500) });
+
+// --- Weekly growth plans -------------------------------------------------
+export const dailyLessonBody = z.object({
+  day: z.number().int().min(1).max(7),
+  title: text(255),
+  passage: text(150).optional(),
+  content: text(20_000),
+}).strict();
+export const studyPlanBody = z.object({
+  title: text(255),
+  description: text(5000).optional(),
+  sermonId: uuid.optional(),
+  dailyLessons: z.array(dailyLessonBody).min(1).max(7)
+    .refine(lessons => new Set(lessons.map(lesson => lesson.day)).size === lessons.length, 'Lesson days must be unique'),
+}).strict();
+export const studyPlanIdParam = z.object({ studyPlanId: uuid });
+export const dailyLessonDayParam = z.object({ studyPlanId: uuid, day: z.coerce.number().int().min(1).max(7) });
+export const dailyLessonIdParam = z.object({ dailyLessonId: uuid });
+export const attachStudyPlanBody = z.object({ sermonId: uuid }).strict();
+export const lessonProgressBody = z.object({ completed: z.boolean() }).strict();
