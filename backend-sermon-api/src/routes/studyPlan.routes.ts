@@ -313,12 +313,13 @@ studyPlanRouter.get('/study-plans/:studyPlanId/progress', validate({ params: stu
  * /study-plans:
  *   get:
  *     tags: [StudyPlans]
- *     summary: List study plans attached to published sermons
+ *     summary: List published study plans or the staff management catalog
  *     security: [{ bearerAuth: [] }]
  *     parameters:
  *       - $ref: '#/components/parameters/Page'
  *       - $ref: '#/components/parameters/Limit'
  *       - { name: q, in: query, schema: { type: string, maxLength: 200 }, description: Search plan titles }
+ *       - { name: scope, in: query, schema: { type: string, enum: [published, manage], default: published }, description: 'manage is restricted to leaders/admins and includes draft, archived, and unattached plans' }
  *     responses:
  *       200:
  *         description: Available plans with sermon summaries
@@ -345,5 +346,6 @@ studyPlanRouter.get('/study-plans/:studyPlanId/progress', validate({ params: stu
  *                 meta: { $ref: '#/components/schemas/PaginationMeta' }
  *       400: { $ref: '#/components/responses/BadRequest' }
  *       401: { $ref: '#/components/responses/Unauthorized' }
+ *       403: { $ref: '#/components/responses/Forbidden' }
  */
 studyPlanRouter.get('/study-plans', validate({ query: studyPlanListQuery }), listStudyPlans);

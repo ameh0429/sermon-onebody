@@ -74,12 +74,14 @@ export async function getStudyPlanProgress(req: Request, res: Response) {
   res.json({ status: 'success', data: { studyPlanId: plan.id, totalLessons: lessons.length, completedLessons, completionPercentage: lessons.length ? Math.round(completedLessons / lessons.length * 100) : 0, dailyLessons } });
 }
 
-/** Member-facing catalog: only plans attached to published sermons are listed. */
+/** Published member catalog by default; staff can explicitly request the management catalog. */
 export async function listStudyPlans(req: Request, res: Response) {
-  const { page, limit, q } = req.query as unknown as { page: number; limit: number; q?: string };
+  const { page, limit, q, scope } = req.query as unknown as { page: number; limit: number; q?: string; scope: 'published' | 'manage' };
+  const manage = scope === 'manage';
+  if (manage && currentUser(req).role === 'member') throw AppError.forbidden();
   const { rows, count } = await StudyPlan.findAndCountAll({
     where: q ? { title: { [Op.iLike]: `%${escapeLike(q)}%` } } : {},
-    include: [{ model: Sermon, as: 'sermon', attributes: ['id', 'title', 'preacher', 'passage'], where: { status: 'published' }, required: true }],
+    include: [{ model: Sermon, as: 'sermon', attributes: ['id', 'title', 'preacher', 'passage'], ...(manage ? {} : { where: { status: 'published' } }), required: !manage }],
     order: [['createdAt', 'DESC'], ['id', 'ASC']],
     ...paginate(page, limit),
   });

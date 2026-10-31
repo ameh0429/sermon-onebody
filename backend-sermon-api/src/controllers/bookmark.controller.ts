@@ -7,7 +7,8 @@ export async function addBookmark(req: Request, res: Response) {
   const userId = currentUser(req).id;
   const { sermonId } = req.body as { sermonId: string };
 
-  if (!(await Sermon.findByPk(sermonId, { attributes: ['id'] }))) throw AppError.notFound('Sermon not found');
+  const sermon = await Sermon.findByPk(sermonId, { attributes: ['id', 'status'] });
+  if (!sermon || (currentUser(req).role === 'member' && sermon.status !== 'published')) throw AppError.notFound('Sermon not found');
 
   // Idempotent: bookmarking twice returns the existing bookmark.
   const [bookmark, created] = await Bookmark.findOrCreate({ where: { userId, sermonId }, defaults: { userId, sermonId } });
@@ -21,11 +22,11 @@ export async function removeBookmark(req: Request, res: Response) {
 }
 
 export async function listBookmarks(req: Request, res: Response) {
-  const { page, limit } = req.query as unknown as { page: number; limit: number };
+  const { page, limit, sermonId } = req.query as unknown as { page: number; limit: number; sermonId?: string };
 
   const { rows, count } = await Bookmark.findAndCountAll({
-    where: { userId: currentUser(req).id },
-    include: [{ model: Sermon, as: 'sermon', attributes: { exclude: ['content'] } }],
+    where: { userId: currentUser(req).id, ...(sermonId ? { sermonId } : {}) },
+    include: [{ model: Sermon, as: 'sermon', attributes: { exclude: ['content'] }, ...(currentUser(req).role === 'member' ? { where: { status: 'published' }, required: true } : {}) }],
     order: [['createdAt', 'DESC']],
     ...paginate(page, limit),
   });

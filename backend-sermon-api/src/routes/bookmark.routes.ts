@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { addBookmark, listBookmarks, removeBookmark } from '../controllers/bookmark.controller.js';
 import { authenticate } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
-import { bookmarkBody, paginationQuery, sermonIdParam } from '../validators/index.js';
+import { bookmarkBody, bookmarkListQuery, sermonIdParam } from '../validators/index.js';
 
 export const bookmarkRouter = Router();
 
@@ -18,6 +18,7 @@ bookmarkRouter.use(authenticate);
  *     parameters:
  *       - $ref: '#/components/parameters/Page'
  *       - $ref: '#/components/parameters/Limit'
+ *       - { name: sermonId, in: query, schema: { type: string, format: uuid } }
  *     responses:
  *       200:
  *         description: A page of bookmarks, newest first
@@ -37,7 +38,7 @@ bookmarkRouter.use(authenticate);
  *       400: { $ref: '#/components/responses/BadRequest' }
  *       401: { $ref: '#/components/responses/Unauthorized' }
  */
-bookmarkRouter.get('/', validate({ query: paginationQuery }), listBookmarks);
+bookmarkRouter.get('/', validate({ query: bookmarkListQuery }), listBookmarks);
 
 /**
  * @openapi
