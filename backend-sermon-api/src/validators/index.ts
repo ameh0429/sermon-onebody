@@ -36,8 +36,8 @@ export const sermonBody = z.object({
   sermonDate: dateOnly,
   summary: z.string().trim().max(5000).optional(),
   content: z.string().max(100_000).optional(),
-  audioUrl: z.string().url().max(2048).optional(),
-  videoUrl: z.string().url().max(2048).optional(),
+  audioUrl: z.string().url().max(2048).nullable().optional(),
+  videoUrl: z.string().url().max(2048).nullable().optional(),
   tags: z.array(text(50)).max(20).optional(),
 });
 export const sermonUpdateBody = sermonBody.partial().refine(atLeastOne, 'At least one field is required');
@@ -96,7 +96,7 @@ export const flagBody = z.object({ reason: text(500) });
 export const dailyLessonBody = z.object({
   day: z.number().int().min(1).max(7),
   title: text(255),
-  passage: text(150).optional(),
+  passage: text(150).nullable().optional(),
   content: text(20_000),
 }).strict();
 export const studyPlanBody = z.object({
@@ -118,4 +118,6 @@ export const engagementBody = z.object({ event: z.enum(['view', 'listen']) }).st
 export const studyPlanUpdateBody = z.object({ title: text(255).optional(), description: text(5000).nullable().optional() }).strict().refine(atLeastOne, 'At least one field is required');
 export const dailyLessonUpdateBody = dailyLessonBody.partial().refine(atLeastOne, 'At least one field is required');
 
-export const studyPlanListQuery = z.object({ ...pagination, q: z.string().trim().max(200).optional() });
+export const studyPlanListQuery = z.object({ ...pagination, scope: z.enum(['published', 'manage']).default('published'), q: z.string().trim().max(200).optional() });
+
+export const bookmarkListQuery = z.object({ ...pagination, sermonId: uuid.optional() });

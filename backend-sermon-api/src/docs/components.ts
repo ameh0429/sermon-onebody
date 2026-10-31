@@ -96,6 +96,7 @@ export const schemas = {
       description: { type: 'string', nullable: true, example: 'We meet weekly to discuss Sunday’s sermon.' },
       leaderId: uuid(ID2),
       leader: { type: 'object', properties: { id: uuid(ID2), name: { type: 'string', example: 'Pastor John' } } },
+      isMember: { type: 'boolean', description: 'Whether the current user belongs to this group (group detail only).' },
       memberCount: { type: 'integer', description: 'Only on GET /groups/{id}.', example: 12 },
       createdAt: ts('2026-10-01T09:00:00.000Z'),
       updatedAt: ts('2026-10-01T09:00:00.000Z'),
@@ -172,8 +173,8 @@ export const schemas = {
       sermonDate: { type: 'string', format: 'date' },
       summary: { type: 'string', maxLength: 5000 },
       content: { type: 'string' },
-      audioUrl: { type: 'string', format: 'uri' },
-      videoUrl: { type: 'string', format: 'uri' },
+      audioUrl: { type: 'string', format: 'uri', nullable: true },
+      videoUrl: { type: 'string', format: 'uri', nullable: true },
       tags: { type: 'array', items: { type: 'string' }, maxItems: 20 },
     },
     example: {

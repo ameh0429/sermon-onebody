@@ -1,3 +1,4 @@
+import { BookmarkToggle } from "./Personal";
 import { useEffect, useState, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -466,6 +467,13 @@ export function SermonDetail() {
           </span>
         </p>
       </header>
+      <BookmarkToggle sermonId={s.id} />
+      <Link
+        className="text-link inline-block text-sm mb-6"
+        to={`/personal/journal/new?sermonId=${s.id}`}
+      >
+        Write a private reflection
+      </Link>
       <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
         <div className="min-w-0">
           <Media key={s.id} sermon={s} />

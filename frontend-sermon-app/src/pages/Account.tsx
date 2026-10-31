@@ -76,7 +76,7 @@ export function AccountPage({ register = false }: { register?: boolean }) {
             />
           </div>
         </div>
-        <p className="text-xs text-green-100/60">ONE BODY. GROWING TOGETHER.</p>
+        <p className="text-xs text-green-100/60">LOVE IS CHANGING HEARTS, LIGHTING EYES, MOVING HANDS AND LEADING FEET.</p>
       </section>
       <section className="auth-form-section">
         <div className="auth-mobile-brand">
@@ -282,6 +282,11 @@ export function ProfilePage() {
               little more intention.
             </p>
             <InstallApp />
+            {user.role !== "member" && (
+              <Link to="/dashboard" className="text-link block mt-5 text-sm">
+                Open dashboard
+              </Link>
+            )}
           </section>
           <section className="panel p-6">
             <h2 className="font-semibold mb-2">Your session</h2>
