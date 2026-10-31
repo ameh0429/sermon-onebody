@@ -36,6 +36,7 @@ export const schemas = {
       id: uuid(ID1),
       name: { type: 'string', example: 'Grace Okafor' },
       email: { type: 'string', format: 'email', example: 'grace@example.com' },
+      avatarUrl: { type: 'string', format: 'uri', nullable: true, description: 'Public profile photo URL, or null when no photo is set.' },
       isActive: { type: 'boolean', example: true },
       role: { type: 'string', enum: ['member', 'leader', 'admin'], example: 'member' },
       createdAt: ts('2026-10-01T09:00:00.000Z'),

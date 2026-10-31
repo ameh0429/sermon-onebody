@@ -235,7 +235,7 @@ test("join a group, discussion and reply, reporting, member list, leave revokes 
     .fill("Off-topic test discussion");
   await report.getByRole("button", { name: "Send report" }).click();
   await page.getByRole("button", { name: "Members", exact: true }).click();
-  await expect(page.getByText(member.name, { exact: true })).toBeVisible();
+  await expect(page.getByRole("main").getByText(member.name, { exact: true })).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
   expect(
     await page.evaluate(

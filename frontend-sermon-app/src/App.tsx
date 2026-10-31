@@ -1,3 +1,4 @@
+import { Avatar } from "./Avatar";
 import { useEffect } from "react";
 import {
   BookOpen,
@@ -123,9 +124,7 @@ function Layout() {
         </div>
         <div className="sidebar-user">
           <Link to="/profile" className="flex min-w-0 items-center gap-3">
-            <span className="avatar">
-              {user.name.slice(0, 1).toUpperCase()}
-            </span>
+            <Avatar user={user} />
             <span className="min-w-0">
               <span className="block truncate text-sm font-semibold">
                 {user.name}
@@ -149,8 +148,8 @@ function Layout() {
           <Link to="/sermons" aria-label="OneBody home">
             <Brand />
           </Link>
-          <Link to="/profile" aria-label="My profile" className="avatar">
-            {user.name.slice(0, 1).toUpperCase()}
+          <Link to="/profile" aria-label="My profile">
+            <Avatar user={user} />
           </Link>
         </header>
         <header className="desktop-header">
