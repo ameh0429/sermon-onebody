@@ -86,7 +86,7 @@ export function GroupsPage() {
                 <p className="text-sm text-muted line-clamp-3 mt-3">
                   {g.description ?? "A space to connect and grow."}
                 </p>
-                <p className="mt-5 text-xs text-forest">
+                <p className="mt-5 text-xs text-accent">
                   Led by {g.leader?.name ?? "your community"}
                 </p>
               </Link>
@@ -360,7 +360,7 @@ function Threads({
       {!flagged && (
         <>
           <details className="panel p-4 mb-5">
-            <summary className="text-sm text-forest cursor-pointer">
+            <summary className="text-sm text-accent cursor-pointer">
               Filter by sermon
             </summary>
             <SermonPicker
@@ -445,7 +445,7 @@ function PostComposer({
       </label>
       {!parentId && (
         <details>
-          <summary className="text-xs text-forest cursor-pointer">
+          <summary className="text-xs text-accent cursor-pointer">
             Connect to a sermon (optional)
           </summary>
           <SermonPicker value={sermonId} onChange={setSermonId} />
@@ -507,7 +507,7 @@ function PostCard({
         </Link>
       )}
       {post.isFlagged && (
-        <p className="text-xs text-amber-800 mt-3">
+        <p className="text-xs text-warning-ink mt-3">
           <Flag size={12} className="inline mr-1" />
           Flagged for review
           {moderate && post.flagReason ? `: ${post.flagReason}` : ""}

@@ -13,6 +13,7 @@ import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../auth";
 import { Brand, ErrorState, formatDate, PageHeading } from "../ui";
 import { InstallApp, PwaStatus } from "../pwa";
+import { ThemeControl } from "../theme";
 export function AccountPage({ register = false }: { register?: boolean }) {
   const { user, login, expired } = useAuth();
   const location = useLocation();
@@ -79,6 +80,9 @@ export function AccountPage({ register = false }: { register?: boolean }) {
         <p className="text-xs text-green-100/60">ONE BODY. GROWING TOGETHER.</p>
       </section>
       <section className="auth-form-section">
+        <div className="mb-7">
+          <ThemeControl />
+        </div>
         <div className="auth-mobile-brand">
           <Brand />
         </div>
@@ -96,7 +100,7 @@ export function AccountPage({ register = false }: { register?: boolean }) {
           </p>
           {expired && !register && (
             <p
-              className="mb-4 rounded-xl bg-amber-50 p-3 text-sm text-amber-900"
+              className="mb-4 rounded-xl bg-warning-bg p-3 text-sm text-warning-ink"
               role="status"
             >
               Your session ended. Please sign in again.
@@ -248,7 +252,7 @@ export function ProfilePage() {
             <div className="profile-row">
               <dt>Account status</dt>
               <dd className="flex items-center gap-2">
-                <Check size={16} className="text-forest" />
+                <Check size={16} className="text-accent" />
                 {user.isActive ? "Active" : "Inactive"}
               </dd>
             </div>
@@ -261,7 +265,7 @@ export function ProfilePage() {
             {pending ? "Refreshing…" : "Refresh profile"}
           </button>
           {message && (
-            <p role="status" className="mt-4 text-sm text-forest">
+            <p role="status" className="mt-4 text-sm text-accent">
               {message}
             </p>
           )}
@@ -273,7 +277,17 @@ export function ProfilePage() {
         </section>
         <div className="space-y-6">
           <section className="panel p-6">
-            <Leaf className="text-forest" size={24} />
+            <h2 className="font-serif text-2xl mb-3">
+              Make yourself comfortable.
+            </h2>
+            <p className="text-sm text-muted mb-5">
+              Choose your appearance, or let OneBody follow your device. This
+              preference stays on this browser.
+            </p>
+            <ThemeControl />
+          </section>
+          <section className="panel p-6">
+            <Leaf className="text-accent" size={24} />
             <h2 className="font-serif text-2xl mt-4 mb-3">
               Keep growth close.
             </h2>

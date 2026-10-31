@@ -111,7 +111,7 @@ function AnalyticsCards({ stats: s }: { stats: Analytics }) {
         {metrics.map(([label, count]) => (
           <div className="panel p-6" key={label}>
             <p className="text-xs text-muted">{label}</p>
-            <p className="font-serif text-4xl text-forest mt-3">
+            <p className="font-serif text-4xl text-accent mt-3">
               {count.toLocaleString()}
             </p>
           </div>
@@ -497,7 +497,7 @@ export function ManagePlans() {
                 <p className="text-sm text-muted mt-3 line-clamp-3">
                   {p.description}
                 </p>
-                <p className="text-xs text-forest mt-5">
+                <p className="text-xs text-accent mt-5">
                   {p.sermon?.title ?? "Not attached to a sermon"}
                 </p>
                 <span className="text-link text-sm mt-5 block">
@@ -786,7 +786,7 @@ function LessonForm({ planId, lesson }: { planId: string; lesson?: Lesson }) {
       </label>
       <ActionError error={save.error ?? remove.error} />
       {notice && (
-        <p role="status" className="text-sm text-forest">
+        <p role="status" className="text-sm text-accent">
           {notice}
         </p>
       )}

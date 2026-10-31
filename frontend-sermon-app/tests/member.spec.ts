@@ -167,6 +167,12 @@ test("member journey: login, filters, media, lessons, saved progress and profile
   await expect(page.getByText(memberEmail, { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Refresh profile" }).click();
   await expect(page.getByText("Your profile is up to date.")).toBeVisible();
+  await page.getByRole("button", { name: "Dark", exact: true }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await page.screenshot({
+    path: "test-results/dark-profile.png",
+    fullPage: true,
+  });
   await page.getByRole("button", { name: "Install OneBody" }).click();
   await expect(page.getByText(/On iPhone, open in Safari/)).toBeVisible();
   await page
