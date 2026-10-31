@@ -1,14 +1,52 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
+
+// Appearance tests isolate UI state; real authentication is covered by the member suite.
+async function openProfile(page: Page) {
+  const user = {
+    id: "theme-user",
+    name: "Theme Reader",
+    email: "theme@example.com",
+    role: "member",
+    isActive: true,
+    avatarUrl: null,
+    createdAt: "2026-10-01T12:00:00Z",
+  };
+  await page.route("**/api/v1/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(
+        route.request().url().endsWith("/auth/login")
+          ? { status: "success", data: { user, token: "theme-test-token" } }
+          : {
+              status: "success",
+              data: [],
+              meta: { page: 1, limit: 9, total: 0, totalPages: 1 },
+            },
+      ),
+    }),
+  );
+  await page.goto("/login");
+  await page.getByLabel("Email address").fill(user.email);
+  await page.getByLabel("Password", { exact: true }).fill("ThemeTest123!");
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(page).not.toHaveURL(/\/login/);
+  await page.getByRole("link", { name: "My profile", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "A little about you." }),
+  ).toBeVisible();
+}
 
 test("system default follows live device appearance without writing storage", async ({
   page,
 }) => {
   await page.emulateMedia({ colorScheme: "dark" });
   await page.goto("/login");
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await expect(
-    page.getByRole("button", { name: "System", exact: true }),
-  ).toHaveAttribute("aria-pressed", "true");
+    page.getByRole("button", { name: "Sign in", exact: true }),
+  ).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(page.getByRole("group", { name: "Color theme" })).toHaveCount(0);
   expect(
     await page.evaluate(() => getComputedStyle(document.body).backgroundColor),
   ).toBe("rgb(20, 32, 25)");
@@ -22,6 +60,11 @@ test("system default follows live device appearance without writing storage", as
   });
   await page.emulateMedia({ colorScheme: "light" });
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await page.goto("/register");
+  await expect(
+    page.getByRole("button", { name: "Create account", exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole("group", { name: "Color theme" })).toHaveCount(0);
 });
 
 test("explicit choice persists, overrides device setting and synchronizes tabs", async ({
@@ -29,13 +72,15 @@ test("explicit choice persists, overrides device setting and synchronizes tabs",
   context,
 }) => {
   await page.emulateMedia({ colorScheme: "dark" });
-  await page.goto("/login");
+  await openProfile(page);
   await page.getByRole("button", { name: "Light", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await page.emulateMedia({ colorScheme: "light" });
   await page.getByRole("button", { name: "Dark", exact: true }).click();
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(page.getByRole("group", { name: "Color theme" })).toHaveCount(0);
+  await openProfile(page);
   await expect(
     page.getByRole("button", { name: "Dark", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
@@ -45,7 +90,7 @@ test("explicit choice persists, overrides device setting and synchronizes tabs",
   );
   const second = await context.newPage();
   await second.emulateMedia({ colorScheme: "light" });
-  await second.goto("/register");
+  await openProfile(second);
   await expect(second.locator("html")).toHaveAttribute("data-theme", "dark");
   await second.getByRole("button", { name: "System", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
@@ -77,15 +122,15 @@ test("invalid preferences fall back to system and blocked storage does not break
   });
   const errors: string[] = [];
   blocked.on("pageerror", (error) => errors.push(error.message));
-  await blocked.goto("/login");
+  await openProfile(blocked);
   await blocked.getByRole("button", { name: "Dark", exact: true }).click();
   await expect(blocked.locator("html")).toHaveAttribute("data-theme", "dark");
   await expect(
     blocked.getByRole("button", { name: "Dark", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
   await expect(
-    blocked.getByRole("link", { name: "Create an account" }),
-  ).toHaveCSS("color", "rgb(191, 219, 173)");
+    blocked.getByRole("heading", { name: "A little about you." }),
+  ).toHaveCSS("color", "rgb(237, 242, 233)");
   expect(
     await blocked.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,

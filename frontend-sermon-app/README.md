@@ -92,7 +92,7 @@ Mobile bottom navigation now includes Personal and Groups; staff gets Dashboard,
 
 ## Appearance
 
-Users can choose **Light**, **Dark**, or **System** on the sign-in/register screens or under their profile. System is the default and follows device changes while the app is open. An explicit choice is remembered for this browser under the non-sensitive `onebody.theme` localStorage key, survives sign-out/reloads, and synchronizes across tabs. This setting is device-specific, not attached to an account. If storage is blocked, switching still works for the current page.
+Users can choose **Light**, **Dark**, or **System** only under their profile. Sign-in and registration still use the saved/system theme, but do not show appearance controls. System is the default and follows device changes while the app is open. An explicit choice is remembered for this browser under the non-sensitive `onebody.theme` localStorage key, survives sign-out/reloads, and synchronizes across tabs. This setting is device-specific, not attached to an account. If storage is blocked, switching still works for the current page.
 
 `public/theme.js` applies the saved/system preference before React and styles load, avoiding a flash of the wrong theme. `src/theme.tsx` provides the shared React control and handles system/storage changes. Semantic Tailwind color tokens in `styles.css` cover surfaces, text, navigation, forms, reading content, dashboard panels and feedback. `color-scheme` also adapts native controls, and the browser theme-color follows the resolved appearance. The PWA includes the bootstrap script in its app-shell cache.
 

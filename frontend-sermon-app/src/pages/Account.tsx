@@ -83,9 +83,6 @@ export function AccountPage({ register = false }: { register?: boolean }) {
         </p>
       </section>
       <section className="auth-form-section">
-        <div className="mb-7">
-          <ThemeControl />
-        </div>
         <div className="auth-mobile-brand">
           <Brand />
         </div>
