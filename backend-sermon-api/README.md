@@ -149,3 +149,9 @@ BASE_URL=http://localhost:3000 node --env-file=.env scripts/admin-smoke-test.mjs
 ```
 
 Use a development database with a seeded admin. The test checks permissions, status visibility and cache separation, unique engagement and analytics, plan/lesson management, immediate role updates, and deactivation. It removes its own fixtures. Restart the API between smoke suites to reset rate limits.
+
+## React member app
+
+The sibling `frontend-sermon-app` connects to this API for registration/login/profile, published sermons, and daily study progress. See its README for local startup and deployment. The frontend Vite dev proxy forwards `/api` to port 3000 by default.
+
+`GET /api/v1/study-plans?page=1&limit=20&q=grace` provides a paginated member-facing catalog, with `sermon` summaries alongside plan metadata. Only plans attached to published sermons are included, for every role. Use the existing per-sermon or by-ID endpoints for staff access to draft/unattached plans. The catalog uses the usual bearer authentication, pagination limits, validation, and success envelope; it does not expose other users’ progress. No new schema migration is required for this endpoint.

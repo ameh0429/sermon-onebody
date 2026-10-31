@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { authenticate, authorize } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
-import { createStudyPlan, getStudyPlan, attachStudyPlan, getSermonStudyPlans, getDailyLesson, updateLessonProgress, getStudyPlanProgress } from '../controllers/studyPlan.controller.js';
-import { studyPlanBody, studyPlanIdParam, attachStudyPlanBody, sermonIdParam, dailyLessonDayParam, dailyLessonIdParam, lessonProgressBody } from '../validators/index.js';
+import { listStudyPlans, createStudyPlan, getStudyPlan, attachStudyPlan, getSermonStudyPlans, getDailyLesson, updateLessonProgress, getStudyPlanProgress } from '../controllers/studyPlan.controller.js';
+import { studyPlanListQuery, studyPlanBody, studyPlanIdParam, attachStudyPlanBody, sermonIdParam, dailyLessonDayParam, dailyLessonIdParam, lessonProgressBody } from '../validators/index.js';
 
 export const studyPlanRouter = Router();
 studyPlanRouter.use(authenticate);
@@ -307,3 +307,43 @@ studyPlanRouter.put('/daily-lessons/:dailyLessonId/progress', validate({ params:
  *         format: uuid
  */
 studyPlanRouter.get('/study-plans/:studyPlanId/progress', validate({ params: studyPlanIdParam }), getStudyPlanProgress);
+
+/**
+ * @openapi
+ * /study-plans:
+ *   get:
+ *     tags: [StudyPlans]
+ *     summary: List study plans attached to published sermons
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - $ref: '#/components/parameters/Page'
+ *       - $ref: '#/components/parameters/Limit'
+ *       - { name: q, in: query, schema: { type: string, maxLength: 200 }, description: Search plan titles }
+ *     responses:
+ *       200:
+ *         description: Available plans with sermon summaries
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status: { type: string, example: success }
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     allOf:
+ *                       - $ref: '#/components/schemas/StudyPlan'
+ *                       - type: object
+ *                         properties:
+ *                           sermon:
+ *                             type: object
+ *                             properties:
+ *                               id: { type: string, format: uuid }
+ *                               title: { type: string }
+ *                               preacher: { type: string }
+ *                               passage: { type: string }
+ *                 meta: { $ref: '#/components/schemas/PaginationMeta' }
+ *       400: { $ref: '#/components/responses/BadRequest' }
+ *       401: { $ref: '#/components/responses/Unauthorized' }
+ */
+studyPlanRouter.get('/study-plans', validate({ query: studyPlanListQuery }), listStudyPlans);
