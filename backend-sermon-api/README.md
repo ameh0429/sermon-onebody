@@ -166,3 +166,38 @@ The React app now includes bookmarks/private journals, fellowship discussions, a
 - Sermon `audioUrl`/`videoUrl` and daily lesson `passage` accept `null` so editors can clear these optional fields.
 
 No database migration is needed for these additions. Swagger documents the filter/scope/nullable fields. The frontend's private journal editor always saves with `isShared=false`; existing API group-sharing functionality remains available to clients that explicitly use it.
+
+## Profile photos (Cloudinary)
+
+Users can upload/replace/remove their own photo from the React Profile screen. The API exposes authenticated `PUT /api/v1/users/me/avatar` (multipart field **avatar**) and `DELETE /api/v1/users/me/avatar`. Both return the updated User envelope with `avatarUrl`; password hashes and `avatarPublicId` are excluded. Registration/login/profile responses include `avatarUrl` automatically. Swagger includes a file picker and endpoint error descriptions.
+
+Before deployment, apply the additive migration:
+
+```bash
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/20261031_profile_photos.sql
+```
+
+Development `DB_SYNC=true` also creates these nullable columns. Existing accounts keep their initials until a photo is uploaded.
+
+Configure **real backend runtime secrets** from your Cloudinary account:
+
+```dotenv
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+```
+
+Use your hosting provider's secure backend environment settings, or an ignored local backend `.env`. Never commit values, paste secrets into chat, put them in `VITE_*` variables, or expose the API secret to the browser. The SDK signs requests locally, so it needs the real secret in its process; an outbound proxy placeholder alone is insufficient. Restart the backend after configuration changes. Outbound HTTPS access to `api.cloudinary.com` is required; browsers load public images from `res.cloudinary.com`. The rest of the API works without Cloudinary; uploads then return an actionable 503. Real Cloudinary storage was not validated during development because credentials were absent.
+
+Uploads allow one still JPEG/PNG/WebP, at most **5 MiB** and **16 megapixels**. The server decodes the actual bytes, verifies their format against the MIME type, rejects extra multipart fields/files, auto-orients, center-crops to 400×400, and re-encodes JPEG without metadata. Source filenames are never used for storage paths. Auth runs before multipart buffering; photo changes are rate limited to 10 requests per 15 minutes per account. CORS includes PUT for separately hosted frontends.
+
+Each upload receives a unique server-generated Cloudinary public ID. Row locks serialize account updates; the previous asset is deleted only after the new reference commits. Failed uploads/saves preserve the old account photo and attempt cleanup of new resources. Removal clears the account reference and returns the updated user; removing an absent photo succeeds. Storage cleanup is best-effort: failures log a managed public ID for an operator to retry in Cloudinary. There is no persistent cleanup-job queue, and CDN/cache invalidation may take time. Photos are public image URLs, not private journal attachments.
+
+Backend integration tests (local development database with the migration applied):
+
+```bash
+npm run build
+node --env-file=.env --test scripts/avatar-test.mjs
+```
+
+The tests inject an in-memory storage adapter into `createApp` and exercise real HTTP multipart parsing, Sharp processing, authentication, PostgreSQL transactions, concurrent replacement, failure cleanup, deactivation, rate limits and CORS. They do not contact Cloudinary or modify real profile photos. Browser tests separately cover previews, multipart requests, shared avatars and error handling with explicitly intercepted storage responses. A real Cloudinary upload/delete smoke check is still required after credentials are configured.

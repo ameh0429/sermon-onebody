@@ -8,7 +8,7 @@ import {
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { api, send, session } from "./api";
-import type { User } from "./types";
+import type { Envelope, User } from "./types";
 interface Auth {
   user: User | null;
   expired: boolean;
@@ -18,6 +18,7 @@ interface Auth {
   ) => Promise<void>;
   logout: () => void;
   refresh: () => Promise<void>;
+  updateAccount: (request: () => Promise<Envelope<User>>) => Promise<void>;
 }
 const AuthContext = createContext<Auth | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -60,8 +61,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data } = await api<User>("/users/me");
     if (current === generation.current) setUser(data);
   }
+  async function updateAccount(request: () => Promise<Envelope<User>>) {
+    const current = generation.current;
+    const { data } = await request();
+    if (current === generation.current) {
+      setUser(data);
+      await client.invalidateQueries({ queryKey: ["admin-users"] });
+    }
+  }
   return (
-    <AuthContext.Provider value={{ user, expired, login, logout, refresh }}>
+    <AuthContext.Provider
+      value={{ user, expired, login, logout, refresh, updateAccount }}
+    >
       {children}
     </AuthContext.Provider>
   );

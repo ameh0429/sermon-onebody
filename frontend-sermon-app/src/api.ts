@@ -23,7 +23,8 @@ export async function api<T>(
 ): Promise<Envelope<T>> {
   let response: Response;
   const headers = new Headers(init.headers);
-  if (init.body) headers.set("Content-Type", "application/json");
+  if (init.body && !(init.body instanceof FormData))
+    headers.set("Content-Type", "application/json");
   if (token) headers.set("Authorization", `Bearer ${token}`);
   try {
     response = await fetch(

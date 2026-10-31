@@ -1,3 +1,4 @@
+import { Avatar, ProfilePhotoEditor } from "../Avatar";
 import { useState, type FormEvent } from "react";
 import {
   ArrowRight,
@@ -77,7 +78,9 @@ export function AccountPage({ register = false }: { register?: boolean }) {
             />
           </div>
         </div>
-        <p className="text-xs text-green-100/60">LOVE IS CHANGING HEARTS, LIGHTING EYES, MOVING HANDS AND LEADING FEET.</p>
+        <p className="text-xs text-green-100/60">
+          LOVE IS CHANGING HEARTS, LIGHTING EYES, MOVING HANDS AND LEADING FEET.
+        </p>
       </section>
       <section className="auth-form-section">
         <div className="mb-7">
@@ -225,56 +228,57 @@ export function ProfilePage() {
         Your place in the OneBody community.
       </PageHeading>
       <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <section className="panel p-6 sm:p-8">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="avatar h-16! w-16! text-2xl!">
-              {user.name.slice(0, 1).toUpperCase()}
+        <div>
+          <ProfilePhotoEditor />
+          <section className="panel p-6 sm:p-8">
+            <div className="flex items-center gap-4 mb-8">
+              <Avatar user={user} className="h-16! w-16! text-2xl!" />
+              <div className="min-w-0">
+                <h2 className="font-serif text-2xl break-words">{user.name}</h2>
+                <span className="badge mt-2 capitalize">
+                  {user.role === "leader" ? "Pastor" : user.role}
+                </span>
+              </div>
             </div>
-            <div className="min-w-0">
-              <h2 className="font-serif text-2xl break-words">{user.name}</h2>
-              <span className="badge mt-2 capitalize">
-                {user.role === "leader" ? "Pastor" : user.role}
-              </span>
-            </div>
-          </div>
-          <dl className="divide-y divide-line">
-            <div className="profile-row">
-              <dt>Email address</dt>
-              <dd className="flex gap-2 items-center break-all">
-                <Mail size={16} className="shrink-0" />
-                {user.email}
-              </dd>
-            </div>
-            <div className="profile-row">
-              <dt>Joined OneBody</dt>
-              <dd>{formatDate(user.createdAt)}</dd>
-            </div>
-            <div className="profile-row">
-              <dt>Account status</dt>
-              <dd className="flex items-center gap-2">
-                <Check size={16} className="text-accent" />
-                {user.isActive ? "Active" : "Inactive"}
-              </dd>
-            </div>
-          </dl>
-          <button
-            className="btn-secondary mt-6"
-            onClick={() => void reload()}
-            disabled={pending}
-          >
-            {pending ? "Refreshing…" : "Refresh profile"}
-          </button>
-          {message && (
-            <p role="status" className="mt-4 text-sm text-accent">
-              {message}
-            </p>
-          )}
-          {error != null && (
-            <div className="mt-4">
-              <ErrorState error={error} />
-            </div>
-          )}
-        </section>
+            <dl className="divide-y divide-line">
+              <div className="profile-row">
+                <dt>Email address</dt>
+                <dd className="flex gap-2 items-center break-all">
+                  <Mail size={16} className="shrink-0" />
+                  {user.email}
+                </dd>
+              </div>
+              <div className="profile-row">
+                <dt>Joined OneBody</dt>
+                <dd>{formatDate(user.createdAt)}</dd>
+              </div>
+              <div className="profile-row">
+                <dt>Account status</dt>
+                <dd className="flex items-center gap-2">
+                  <Check size={16} className="text-accent" />
+                  {user.isActive ? "Active" : "Inactive"}
+                </dd>
+              </div>
+            </dl>
+            <button
+              className="btn-secondary mt-6"
+              onClick={() => void reload()}
+              disabled={pending}
+            >
+              {pending ? "Refreshing…" : "Refresh profile"}
+            </button>
+            {message && (
+              <p role="status" className="mt-4 text-sm text-accent">
+                {message}
+              </p>
+            )}
+            {error != null && (
+              <div className="mt-4">
+                <ErrorState error={error} />
+              </div>
+            )}
+          </section>
+        </div>
         <div className="space-y-6">
           <section className="panel p-6">
             <h2 className="font-serif text-2xl mb-3">

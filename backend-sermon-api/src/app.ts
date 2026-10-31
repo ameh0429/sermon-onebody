@@ -1,4 +1,6 @@
 import express from 'express';
+import { createAvatarRouter } from './routes/avatar.routes.js';
+import type { AvatarStorage } from './services/avatarStorage.js';
 import cors from 'cors';
 import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
@@ -11,7 +13,7 @@ import { globalLimiter } from './middleware/rateLimit.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { sanitizeBody } from './middleware/sanitize.js';
 
-export function createApp() {
+export function createApp(options: { avatarStorage?: AvatarStorage } = {}) {
   const app = express();
 
   app.disable('x-powered-by');
@@ -27,7 +29,7 @@ export function createApp() {
   app.use(
     cors({
       origin: env.corsOrigin === '*' ? true : env.corsOrigin.split(',').map((o) => o.trim()),
-      methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     }),
   );
   app.use(globalLimiter);
@@ -43,6 +45,7 @@ export function createApp() {
     }
   });
 
+  app.use('/api/v1/users/me/avatar', createAvatarRouter(options.avatarStorage));
   app.use('/api/v1', apiRouter);
 
   app.use(notFoundHandler);
