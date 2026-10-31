@@ -117,3 +117,5 @@ export const accountStatusBody = z.object({ isActive: z.boolean() }).strict();
 export const engagementBody = z.object({ event: z.enum(['view', 'listen']) }).strict();
 export const studyPlanUpdateBody = z.object({ title: text(255).optional(), description: text(5000).nullable().optional() }).strict().refine(atLeastOne, 'At least one field is required');
 export const dailyLessonUpdateBody = dailyLessonBody.partial().refine(atLeastOne, 'At least one field is required');
+
+export const studyPlanListQuery = z.object({ ...pagination, q: z.string().trim().max(200).optional() });

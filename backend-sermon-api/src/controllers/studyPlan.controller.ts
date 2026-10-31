@@ -1,8 +1,9 @@
 import type { Request, Response } from 'express';
+import { Op } from 'sequelize';
 import { sequelize } from '../config/database.js';
 import { StudyPlan, DailyLesson, LessonProgress, Sermon } from '../models/index.js';
 import { AppError } from '../utils/AppError.js';
-import { currentUser, param } from '../utils/helpers.js';
+import { currentUser, escapeLike, paginate, paginated, param } from '../utils/helpers.js';
 import type { z } from 'zod';
 import type { studyPlanBody } from '../validators/index.js';
 
@@ -71,4 +72,16 @@ export async function getStudyPlanProgress(req: Request, res: Response) {
   const dailyLessons = lessons.map(l => ({ dailyLessonId: l.id, day: l.day, completed: byLesson.get(l.id)?.completed ?? false, completedAt: byLesson.get(l.id)?.completedAt ?? null }));
   const completedLessons = dailyLessons.filter(l => l.completed).length;
   res.json({ status: 'success', data: { studyPlanId: plan.id, totalLessons: lessons.length, completedLessons, completionPercentage: lessons.length ? Math.round(completedLessons / lessons.length * 100) : 0, dailyLessons } });
+}
+
+/** Member-facing catalog: only plans attached to published sermons are listed. */
+export async function listStudyPlans(req: Request, res: Response) {
+  const { page, limit, q } = req.query as unknown as { page: number; limit: number; q?: string };
+  const { rows, count } = await StudyPlan.findAndCountAll({
+    where: q ? { title: { [Op.iLike]: `%${escapeLike(q)}%` } } : {},
+    include: [{ model: Sermon, as: 'sermon', attributes: ['id', 'title', 'preacher', 'passage'], where: { status: 'published' }, required: true }],
+    order: [['createdAt', 'DESC'], ['id', 'ASC']],
+    ...paginate(page, limit),
+  });
+  res.json({ status: 'success', ...paginated(rows, count, page, limit) });
 }
