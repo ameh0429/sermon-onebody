@@ -76,7 +76,7 @@ export function AccountPage({ register = false }: { register?: boolean }) {
             />
           </div>
         </div>
-        <p className="text-xs text-green-100/60">ONE BODY. GROWING TOGETHER.</p>
+        <p className="text-xs text-green-100/60">LOVE IS CHANGING HEARTS, LIGHTING EYES, MOVING HANDS AND LEADING FEET.</p>
       </section>
       <section className="auth-form-section">
         <div className="auth-mobile-brand">
