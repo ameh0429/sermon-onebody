@@ -41,8 +41,8 @@ export function GrowthLibrary() {
         reflection, and room to grow.
       </PageHeading>
       <div className="growth-intro">
-        <div className="rounded-full bg-white/70 p-4">
-          <Sprout className="text-forest" size={30} strokeWidth={1.4} />
+        <div className="rounded-full bg-surface/70 p-4">
+          <Sprout className="text-accent" size={30} strokeWidth={1.4} />
         </div>
         <div>
           <h2 className="font-serif text-2xl">
@@ -111,7 +111,7 @@ export function GrowthLibrary() {
                   <Sprout size={29} strokeWidth={1.5} />
                 </div>
                 <p className="eyebrow mt-6">A WEEK IN THE WORD</p>
-                <h2 className="font-serif text-2xl mt-3 group-hover:text-forest">
+                <h2 className="font-serif text-2xl mt-3 group-hover:text-accent">
                   {plan.title}
                 </h2>
                 {plan.description && (
@@ -125,7 +125,7 @@ export function GrowthLibrary() {
                     <span>From “{plan.sermon.title}”</span>
                   </div>
                 )}
-                <span className="flex items-center justify-between text-sm text-forest font-semibold mt-auto pt-6">
+                <span className="flex items-center justify-between text-sm text-accent font-semibold mt-auto pt-6">
                   Open study plan
                   <ArrowRight size={17} />
                 </span>
@@ -204,7 +204,7 @@ export function StudyPlanPage() {
         </div>
         {stats && (
           <div className="progress-meter">
-            <span className="text-xs text-forest font-semibold">
+            <span className="text-xs text-accent font-semibold">
               {stats.completionPercentage}%
             </span>
             <progress
@@ -330,7 +330,7 @@ function DailyLesson({
       <div className="flex justify-between items-center gap-3">
         <span className="badge">DAY {l.day.toString().padStart(2, "0")}</span>
         {completed && (
-          <span className="flex items-center gap-1.5 text-xs text-forest">
+          <span className="flex items-center gap-1.5 text-xs text-accent">
             <CheckCheck size={17} />
             Completed
           </span>
@@ -389,7 +389,7 @@ function DailyLesson({
         )}
       </div>
       {saved && (
-        <p className="mt-4 text-sm text-forest" role="status">
+        <p className="mt-4 text-sm text-accent" role="status">
           Your progress has been saved.
         </p>
       )}

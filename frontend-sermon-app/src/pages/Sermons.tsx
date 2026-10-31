@@ -255,7 +255,7 @@ function SermonCard({ sermon, index }: { sermon: Sermon; index: number }) {
             {formatDate(sermon.sermonDate)}
           </span>
         </div>
-        <h3 className="font-serif text-[23px] leading-snug mt-3 group-hover:text-forest">
+        <h3 className="font-serif text-[23px] leading-snug mt-3 group-hover:text-accent">
           {sermon.title}
         </h3>
         <p className="text-xs text-muted mt-2">{sermon.preacher}</p>
@@ -264,7 +264,7 @@ function SermonCard({ sermon, index }: { sermon: Sermon; index: number }) {
             {sermon.summary}
           </p>
         )}
-        <div className="mt-auto pt-5 flex items-center justify-between text-xs text-forest">
+        <div className="mt-auto pt-5 flex items-center justify-between text-xs text-accent">
           <span className="flex items-center gap-2">
             {sermon.audioUrl ? (
               <>
@@ -480,7 +480,7 @@ export function SermonDetail() {
           <section className="panel p-6 sm:p-8">
             <p className="eyebrow mb-4">THE MESSAGE</p>
             {s.summary && (
-              <p className="font-serif text-2xl leading-relaxed mb-6 text-forest">
+              <p className="font-serif text-2xl leading-relaxed mb-6 text-accent">
                 {s.summary}
               </p>
             )}

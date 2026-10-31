@@ -23,7 +23,7 @@ export function Brand() {
 export function Loading({ label = "Loading…" }: { label?: string }) {
   return (
     <div className="state-box" role="status">
-      <LoaderCircle className="animate-spin text-forest" size={24} />
+      <LoaderCircle className="animate-spin text-accent" size={24} />
       <p>{label}</p>
     </div>
   );
@@ -59,7 +59,7 @@ export function Empty({
   children: ReactNode;
 }) {
   return (
-    <div className="state-box rounded-2xl border border-dashed border-line bg-white/60">
+    <div className="state-box rounded-2xl border border-dashed border-line bg-surface/60">
       <BookOpen size={28} className="text-sage" />
       <h2 className="font-serif text-2xl text-ink">{title}</h2>
       <div className="max-w-md text-center">{children}</div>

@@ -260,7 +260,13 @@ test("pastor manages sermons, plans and lessons and sees analytics", async ({
   request,
 }) => {
   await signIn(page, pastor);
+  await spa(page, "/profile");
+  await page.getByRole("button", { name: "Dark", exact: true }).click();
   await spa(page, "/dashboard");
+  await page.screenshot({
+    path: "test-results/dark-dashboard.png",
+    fullPage: true,
+  });
   await expect(
     page.getByRole("heading", { name: "Care for a growing community." }),
   ).toBeVisible();
