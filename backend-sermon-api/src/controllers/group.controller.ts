@@ -45,8 +45,11 @@ export async function getGroup(req: Request, res: Response) {
   });
   if (!group) throw AppError.notFound('Group not found');
 
-  const memberCount = await GroupMember.count({ where: { groupId: group.id } });
-  res.json({ status: 'success', data: { ...group.toJSON(), memberCount } });
+  const [memberCount, membership] = await Promise.all([
+    GroupMember.count({ where: { groupId: group.id } }),
+    GroupMember.findOne({ where: { groupId: group.id, userId: currentUser(req).id }, attributes: ['userId'] }),
+  ]);
+  res.json({ status: 'success', data: { ...group.toJSON(), memberCount, isMember: !!membership } });
 }
 
 export async function updateGroup(req: Request, res: Response) {

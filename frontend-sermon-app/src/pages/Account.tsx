@@ -282,6 +282,11 @@ export function ProfilePage() {
               little more intention.
             </p>
             <InstallApp />
+            {user.role !== "member" && (
+              <Link to="/dashboard" className="text-link block mt-5 text-sm">
+                Open dashboard
+              </Link>
+            )}
           </section>
           <section className="panel p-6">
             <h2 className="font-semibold mb-2">Your session</h2>

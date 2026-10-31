@@ -155,3 +155,14 @@ Use a development database with a seeded admin. The test checks permissions, sta
 The sibling `frontend-sermon-app` connects to this API for registration/login/profile, published sermons, and daily study progress. See its README for local startup and deployment. The frontend Vite dev proxy forwards `/api` to port 3000 by default.
 
 `GET /api/v1/study-plans?page=1&limit=20&q=grace` provides a paginated member-facing catalog, with `sermon` summaries alongside plan metadata. Only plans attached to published sermons are included, for every role. Use the existing per-sermon or by-ID endpoints for staff access to draft/unattached plans. The catalog uses the usual bearer authentication, pagination limits, validation, and success envelope; it does not expose other users’ progress. No new schema migration is required for this endpoint.
+
+## Member and dashboard UI support
+
+The React app now includes bookmarks/private journals, fellowship discussions, and pastor/admin management screens. Supporting API additions:
+
+- `GET /bookmarks?sermonId=<uuid>` can look up a caller's bookmark for a particular sermon. Member bookmark lists exclude unpublished sermons; members cannot bookmark drafts or archived content.
+- `GET /groups/:id` adds `isMember` for the caller, alongside the existing `memberCount`. Discussion/member-list access still uses the existing server-side membership/role checks.
+- `GET /study-plans?scope=manage` is leader/admin-only and includes unattached plans and plans connected to draft/archived sermons. The default `published` scope is unchanged and remains the member catalog.
+- Sermon `audioUrl`/`videoUrl` and daily lesson `passage` accept `null` so editors can clear these optional fields.
+
+No database migration is needed for these additions. Swagger documents the filter/scope/nullable fields. The frontend's private journal editor always saves with `isShared=false`; existing API group-sharing functionality remains available to clients that explicitly use it.

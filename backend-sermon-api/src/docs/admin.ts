@@ -153,7 +153,7 @@ export const adminSchemas = {
       "passage": {
         "type": "string",
         "minLength": 1,
-        "maxLength": 150
+        "maxLength": 150, "nullable": true
       },
       "content": {
         "type": "string",

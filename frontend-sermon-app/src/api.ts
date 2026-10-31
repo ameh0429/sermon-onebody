@@ -36,6 +36,8 @@ export async function api<T>(
       0,
     );
   }
+  if (response.status === 204)
+    return { status: "success", data: undefined as T };
   const payload = await response.json().catch(() => null);
   if (!response.ok) {
     if (response.status === 401 && token) onExpired();

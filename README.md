@@ -1,6 +1,6 @@
 # OneBody
 
-Sermon library and weekly growth plans for a community growing together.
+Sermon library, weekly growth plans, private reflections, fellowship, and pastor/admin tools for a community growing together.
 
 - [`backend-sermon-api`](backend-sermon-api/README.md): Express + TypeScript + PostgreSQL API and Swagger documentation.
 - [`frontend-sermon-app`](frontend-sermon-app/README.md): React + Tailwind responsive member web app and PWA.

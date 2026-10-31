@@ -1,6 +1,9 @@
 import { useEffect } from "react";
 import {
   BookOpen,
+  Bookmark,
+  Users,
+  LayoutDashboard,
   ChevronRight,
   CircleUserRound,
   Leaf,
@@ -22,6 +25,17 @@ import { PwaStatus } from "./pwa";
 import { AccountPage, ProfilePage } from "./pages/Account";
 import { SermonDetail, SermonLibrary } from "./pages/Sermons";
 import { GrowthLibrary, StudyPlanPage } from "./pages/Growth";
+import { BookmarksPage, JournalPage, JournalEditor } from "./pages/Personal";
+import { GroupsPage, GroupDetail, GroupEditor } from "./pages/Fellowship";
+import {
+  DashboardLayout,
+  AnalyticsPage,
+  ManageSermons,
+  SermonEditor,
+  ManagePlans,
+  PlanEditor,
+  UsersPage,
+} from "./pages/Dashboard";
 function Layout() {
   const { user, logout } = useAuth();
   const location = useLocation();
@@ -45,11 +59,28 @@ function Layout() {
     },
     { to: "/growth", label: "Weekly growth", mobile: "Growth", icon: Sprout },
     {
+      to: "/personal",
+      label: "Personal space",
+      mobile: "Personal",
+      icon: Bookmark,
+    },
+    { to: "/groups", label: "Fellowship", mobile: "Groups", icon: Users },
+    {
       to: "/profile",
       label: "My profile",
       mobile: "Profile",
       icon: CircleUserRound,
     },
+    ...(user.role !== "member"
+      ? [
+          {
+            to: "/dashboard",
+            label: "Dashboard",
+            mobile: "Dashboard",
+            icon: LayoutDashboard,
+          },
+        ]
+      : []),
   ];
   return (
     <div className="app-shell">
@@ -137,17 +168,25 @@ function Layout() {
           One body. Many stories. Growing in grace.
         </footer>
       </div>
-      <nav className="bottom-nav" aria-label="Mobile navigation">
-        {links.map(({ to, mobile, icon: Icon }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) => (isActive ? "active" : "")}
-          >
-            <Icon size={21} strokeWidth={1.7} />
-            <span>{mobile}</span>
-          </NavLink>
-        ))}
+      <nav
+        className="bottom-nav"
+        style={{
+          gridTemplateColumns: `repeat(${Math.min(links.length, 5)}, minmax(0, 1fr))`,
+        }}
+        aria-label="Mobile navigation"
+      >
+        {links
+          .filter((l) => user.role === "member" || l.to !== "/profile")
+          .map(({ to, mobile, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              <Icon size={21} strokeWidth={1.7} />
+              <span>{mobile}</span>
+            </NavLink>
+          ))}
       </nav>
     </div>
   );
@@ -164,6 +203,24 @@ export default function App() {
         <Route path="growth" element={<GrowthLibrary />} />
         <Route path="growth/:planId" element={<StudyPlanPage />} />
         <Route path="profile" element={<ProfilePage />} />
+        <Route path="personal" element={<BookmarksPage />} />
+        <Route path="personal/journal" element={<JournalPage />} />
+        <Route path="personal/journal/new" element={<JournalEditor />} />
+        <Route path="personal/journal/:entryId" element={<JournalEditor />} />
+        <Route path="groups" element={<GroupsPage />} />
+        <Route path="groups/new" element={<GroupEditor />} />
+        <Route path="groups/:groupId" element={<GroupDetail />} />
+        <Route path="groups/:groupId/edit" element={<GroupEditor />} />
+        <Route path="dashboard" element={<DashboardLayout />}>
+          <Route index element={<AnalyticsPage />} />
+          <Route path="sermons" element={<ManageSermons />} />
+          <Route path="sermons/new" element={<SermonEditor />} />
+          <Route path="sermons/:sermonId/edit" element={<SermonEditor />} />
+          <Route path="plans" element={<ManagePlans />} />
+          <Route path="plans/new" element={<PlanEditor />} />
+          <Route path="plans/:planId/edit" element={<PlanEditor />} />
+          <Route path="users" element={<UsersPage />} />
+        </Route>
         <Route
           path="*"
           element={

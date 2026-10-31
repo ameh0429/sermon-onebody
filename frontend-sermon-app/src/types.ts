@@ -52,3 +52,64 @@ export interface Envelope<T> {
   data: T;
   meta?: { page: number; limit: number; total: number; totalPages: number };
 }
+export interface Bookmark {
+  id: string;
+  sermonId: string;
+  sermon: Sermon;
+  createdAt: string;
+}
+export interface JournalEntry {
+  id: string;
+  userId: string;
+  title: string;
+  content: string;
+  sermonId: string | null;
+  isShared: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+export interface Group {
+  id: string;
+  name: string;
+  description: string | null;
+  leaderId: string;
+  leader?: { id: string; name: string };
+  memberCount?: number;
+  isMember?: boolean;
+}
+export interface GroupMember {
+  userId: string;
+  role: string;
+  user: { id: string; name: string };
+}
+export interface Post {
+  id: string;
+  groupId: string;
+  authorId: string;
+  author?: { id: string; name: string };
+  content: string;
+  sermonId: string | null;
+  parentPostId: string | null;
+  isFlagged: boolean;
+  flagReason: string | null;
+  replies?: Post[];
+  createdAt: string;
+}
+export interface Analytics {
+  users: { total: number; active: number; inactive: number };
+  sermons: {
+    total: number;
+    draft: number;
+    published: number;
+    archived: number;
+  };
+  studyPlans: { total: number; dailyLessons: number; completedLessons: number };
+  engagement: {
+    uniqueViews: number;
+    uniqueListens: number;
+    bookmarks: number;
+    journalEntries: number;
+    groups: number;
+    discussionPosts: number;
+  };
+}
