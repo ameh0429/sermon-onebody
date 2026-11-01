@@ -22,7 +22,7 @@ export function Brand() {
         }}
       />
       <span>
-        onebody<span className="brand-dot">.</span>
+        Onebody<span className="brand-dot">.</span>
       </span>
     </span>
   );
