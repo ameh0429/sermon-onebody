@@ -164,7 +164,7 @@ function Layout() {
           <Outlet />
         </main>
         <footer className="app-footer">
-          One body. Many stories. Growing in grace.
+          Love: Hearts, Eyes, Hands, Feet.
         </footer>
       </div>
       <nav
