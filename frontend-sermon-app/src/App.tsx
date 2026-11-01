@@ -155,7 +155,7 @@ function Layout() {
         <header className="desktop-header">
           <span>A place to listen, reflect, and grow.</span>
           <span className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-sage" />
+            <span className="h-1.5 w-1.5 rounded-full bg-secondary" />
             GROW AT YOUR OWN PACE
           </span>
         </header>

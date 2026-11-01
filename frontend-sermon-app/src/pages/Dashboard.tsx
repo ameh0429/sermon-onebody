@@ -128,7 +128,7 @@ function AnalyticsCards({ stats: s }: { stats: Analytics }) {
               </div>
               <div className="h-2 bg-paper rounded-full">
                 <div
-                  className="h-2 bg-sage rounded-full"
+                  className="h-2 bg-secondary rounded-full"
                   style={{ width: `${(count / maximum) * 100}%` }}
                 />
               </div>
@@ -490,7 +490,7 @@ export function ManagePlans() {
             {query.data.data.map((p) => (
               <Link
                 key={p.id}
-                className="panel p-6 hover:border-sage"
+                className="panel p-6 hover:border-secondary"
                 to={`/dashboard/plans/${p.id}/edit`}
               >
                 <h2 className="font-serif text-2xl">{p.title}</h2>

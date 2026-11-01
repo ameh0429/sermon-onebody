@@ -57,13 +57,13 @@ export function AccountPage({ register = false }: { register?: boolean }) {
           <Brand />
         </Link>
         <div className="auth-story-content">
-          <p className="eyebrow text-lime!">FAITH FOR THE EVERYDAY</p>
+          <p className="eyebrow text-peach!">FAITH FOR THE EVERYDAY</p>
           <h1 className="font-serif text-5xl leading-tight lg:text-6xl">
             A deeper faith.
             <br />
             One day at a time.
           </h1>
-          <p className="mt-6 max-w-sm text-green-100/75 leading-relaxed">
+          <p className="mt-6 max-w-sm text-white/85 leading-relaxed">
             Make room for the Word. Discover a message, find a fresh
             perspective, and carry it into your week.
           </p>
@@ -72,13 +72,13 @@ export function AccountPage({ register = false }: { register?: boolean }) {
             <div className="hill hill-one" />
             <div className="hill hill-two" />
             <Leaf
-              className="absolute bottom-12 left-10 text-lime"
+              className="absolute bottom-12 left-10 text-peach"
               size={94}
               strokeWidth={0.8}
             />
           </div>
         </div>
-        <p className="text-xs text-green-100/60">
+        <p className="text-xs text-white/80">
           LOVE IS CHANGING HEARTS, LIGHTING EYES, MOVING HANDS AND LEADING FEET.
         </p>
       </section>

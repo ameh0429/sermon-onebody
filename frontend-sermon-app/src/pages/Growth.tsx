@@ -350,7 +350,7 @@ function DailyLesson({
       )}
       <div className="reading-content mt-7">{l.content}</div>
       <div className="reflection-note">
-        <Circle size={15} className="shrink-0 text-sage mt-0.5" />
+        <Circle size={15} className="shrink-0 text-secondary mt-0.5" />
         <p>
           Pause for a moment. What will you carry from this lesson into today?
         </p>

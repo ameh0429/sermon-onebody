@@ -1,26 +1,26 @@
 @import "tailwindcss";
 
 @theme {
-  --color-accent: #254c3c;
+  --color-accent: #593575;
   --color-surface: #ffffff;
-  --color-soft: #edf1e4;
-  --color-reading: #535e53;
-  --color-warm-soft: #f3ead8;
-  --color-warm-ink: #705a37;
-  --color-purple-soft: #eae7f0;
-  --color-purple-ink: #78738d;
+  --color-soft: #f2eaf5;
+  --color-reading: #554a61;
+  --color-warm-soft: #ffede3;
+  --color-warm-ink: #78452e;
+  --color-purple-soft: #eee8f7;
+  --color-purple-ink: #674980;
   --color-error-line: #e5cfc6;
   --color-error-bg: #fcf2ed;
   --color-error-ink: #8b3e2c;
   --color-warning-bg: #fbefda;
   --color-warning-ink: #7b5625;
-  --color-forest: #254c3c;
-  --color-sage: #80977a;
-  --color-lime: #d6e3ab;
-  --color-ink: #25342c;
-  --color-muted: #68736a;
-  --color-line: #e1e5dc;
-  --color-paper: #f7f8f4;
+  --color-primary: #593575;
+  --color-secondary: #785484;
+  --color-peach: #ffb58c;
+  --color-ink: #292039;
+  --color-muted: #706779;
+  --color-line: #e6dfe9;
+  --color-paper: #faf8fb;
   --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-serif:
     "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
@@ -54,7 +54,7 @@
       box-shadow 0.18s;
   }
   :focus-visible {
-    outline: 3px solid #829b5b;
+    outline: 3px solid #a35486;
     outline-offset: 4px;
   }
   input,
@@ -65,11 +65,11 @@
     max-width: 100%;
   }
   input::placeholder {
-    color: #8b948b;
+    color: #817489;
   }
   input:focus,
   select:focus {
-    outline: 2px solid #80977a;
+    outline: 2px solid #785484;
     outline-offset: 1px;
   }
   audio {
@@ -82,8 +82,8 @@
     overflow-wrap: anywhere;
   }
   ::selection {
-    background: #d6e3ab;
-    color: #254c3c;
+    background: #ffb58c;
+    color: #593575;
   }
 }
 @layer components {
@@ -94,10 +94,10 @@
     @apply h-10 w-10 shrink-0 object-contain;
   }
   .brand-dot {
-    @apply text-sage;
+    @apply text-secondary;
   }
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-forest bg-forest px-5 py-3 text-sm font-semibold text-white hover:bg-[#183b2d];
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-primary bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-[#45245e];
     min-height: 46px;
   }
   .btn-secondary {
@@ -119,14 +119,14 @@
     @apply w-full font-normal;
   }
   .eyebrow {
-    @apply text-[10px] font-semibold tracking-[0.18em] uppercase text-sage;
+    @apply text-[10px] font-semibold tracking-[0.18em] uppercase text-secondary;
   }
   .page-title {
     @apply mt-3 font-serif text-[36px] leading-[1.14] tracking-[-0.7px] sm:text-[44px];
   }
   .panel {
     @apply rounded-2xl border border-line bg-surface;
-    box-shadow: 0 3px 14px rgb(28 50 31 / 2%);
+    box-shadow: 0 3px 14px rgb(35 20 52 / 3%);
   }
   .badge {
     @apply inline-flex items-center gap-1 rounded-full bg-soft px-3 py-1.5 text-[10px] font-semibold text-accent tracking-wide;
@@ -148,7 +148,7 @@
     @apply hidden lg:flex fixed inset-y-0 left-0 z-20 w-60 flex-col border-r border-line bg-surface p-6;
   }
   .nav-label {
-    @apply text-[9px] font-semibold tracking-[0.17em] text-[#98a092];
+    @apply text-[9px] font-semibold tracking-[0.17em] text-[#776885];
   }
   .nav-item {
     @apply flex items-center gap-3 rounded-xl px-3 py-3.5 text-[13px] text-muted hover:bg-soft;
@@ -194,7 +194,7 @@
     min-height: calc(100dvh - 125px);
   }
   .app-footer {
-    @apply mb-24 border-t border-line mx-5 py-6 text-center text-[10px] tracking-wide text-[#8c9588] lg:mb-0;
+    @apply mb-24 border-t border-line mx-5 py-6 text-center text-[10px] tracking-wide text-[#776885] lg:mb-0;
   }
   .bottom-nav {
     @apply fixed bottom-0 left-0 right-0 z-30 grid grid-cols-3 border-t border-line bg-surface/95 backdrop-blur lg:hidden;
@@ -208,20 +208,20 @@
     @apply text-accent font-semibold bg-soft;
   }
   .skip-link {
-    @apply fixed left-3 top-3 z-50 -translate-y-24 rounded-lg bg-forest px-4 py-3 text-white focus:translate-y-0;
+    @apply fixed left-3 top-3 z-50 -translate-y-24 rounded-lg bg-primary px-4 py-3 text-white focus:translate-y-0;
   }
   .connection-banner {
     @apply flex items-center justify-center gap-2 bg-warning-bg px-5 py-3 text-xs text-warning-ink leading-relaxed;
   }
   .update-banner {
-    @apply flex flex-wrap items-center justify-center gap-4 border-b border-line bg-lime px-5 py-3 text-xs text-accent;
+    @apply flex flex-wrap items-center justify-center gap-4 border-b border-line bg-peach px-5 py-3 text-xs text-accent;
   }
   .library-hero {
-    @apply relative overflow-hidden rounded-[20px] bg-forest p-7 sm:p-9 text-white;
+    @apply relative overflow-hidden rounded-[20px] bg-primary p-7 sm:p-9 text-white;
     min-height: 242px;
   }
   .hero-label {
-    @apply inline-flex items-center gap-2 text-[9px] font-semibold tracking-[0.18em] text-green-100/80;
+    @apply inline-flex items-center gap-2 text-[9px] font-semibold tracking-[0.18em] text-white/85;
   }
   .hero-landscape {
     @apply absolute inset-y-0 right-0 w-[45%] overflow-hidden opacity-30 sm:opacity-100;
@@ -229,7 +229,7 @@
   .sun {
     position: absolute;
     border-radius: 50%;
-    background: #d7dda8;
+    background: #ffb58c;
     width: 110px;
     height: 110px;
     top: 22px;
@@ -243,12 +243,12 @@
     transform: rotate(-16deg);
   }
   .hill-one {
-    background: #728d70;
+    background: #a64c79;
     bottom: -130px;
     right: -80px;
   }
   .hill-two {
-    background: #3a634b;
+    background: #3e285b;
     bottom: -155px;
     right: 50px;
     transform: rotate(18deg);
@@ -267,10 +267,10 @@
     @apply min-w-0 grow border-0 bg-transparent px-0 outline-none focus:outline-none focus:ring-0;
   }
   .search-input:focus-within {
-    @apply ring-2 ring-sage;
+    @apply ring-2 ring-secondary;
   }
   .filter-count {
-    @apply inline-flex items-center justify-center h-4 w-4 rounded-full bg-forest text-white text-[9px];
+    @apply inline-flex items-center justify-center h-4 w-4 rounded-full bg-primary text-white text-[9px];
   }
   .filter-fields {
     @apply mt-4 grid gap-4 rounded-xl border border-line bg-soft p-4 sm:grid-cols-2 xl:grid-cols-4;
@@ -279,12 +279,12 @@
     @apply grid gap-5 sm:grid-cols-2 xl:grid-cols-3;
   }
   .sermon-card {
-    @apply flex min-w-0 flex-col overflow-hidden rounded-2xl border border-line bg-surface hover:shadow-lg hover:border-sage/50;
+    @apply flex min-w-0 flex-col overflow-hidden rounded-2xl border border-line bg-surface hover:shadow-lg hover:border-secondary/50;
   }
   .sermon-art {
     @apply relative overflow-hidden;
     height: 154px;
-    background: #e9deca;
+    background: #f8dfdf;
   }
   .art-orb {
     position: absolute;
@@ -293,12 +293,12 @@
     border-radius: 50%;
     right: 30px;
     top: 24px;
-    background: #c6aa7b;
+    background: #ed91a0;
     opacity: 0.6;
   }
   .art-hill {
     position: absolute;
-    background: #acb39a;
+    background: #c09ebd;
     width: 400px;
     height: 180px;
     border-radius: 50%;
@@ -307,39 +307,39 @@
     transform: rotate(-16deg);
   }
   .art-caption {
-    @apply absolute left-5 top-5 text-xs text-[#4f553f] font-serif;
+    @apply absolute left-5 top-5 text-xs text-[#3e285b] font-serif;
     max-width: 65%;
   }
   .art-play {
     @apply absolute bottom-4 right-4 flex items-center justify-center h-9 w-9 rounded-full bg-surface/75 text-accent backdrop-blur-sm;
   }
   .art-1 {
-    background: #dce5da;
+    background: #e7ddf1;
   }
   .art-1 .art-orb {
-    background: #a4b89e;
+    background: #c3a3d8;
     width: 135px;
     height: 135px;
     right: -10px;
     top: -20px;
   }
   .art-1 .art-hill {
-    background: #95ad95;
+    background: #a886c0;
     bottom: -105px;
     transform: rotate(20deg);
   }
   .art-2 {
-    background: #e3e2ee;
+    background: #ffe8df;
   }
   .art-2 .art-orb {
-    background: #bab6cf;
+    background: #f0b396;
     width: 130px;
     height: 130px;
     right: 45px;
     top: 50px;
   }
   .art-2 .art-hill {
-    background: #aaaac0;
+    background: #d29aa4;
     transform: rotate(-5deg);
   }
   .reading-content {
@@ -366,7 +366,7 @@
     @apply flex flex-col items-start gap-5 rounded-2xl border border-line bg-soft p-6 sm:flex-row sm:items-center sm:p-7;
   }
   .plan-card {
-    @apply flex flex-col p-6 hover:border-sage/60 hover:shadow-md;
+    @apply flex flex-col p-6 hover:border-secondary/60 hover:shadow-md;
   }
   .plan-card-icon {
     @apply inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-soft text-accent;
@@ -389,18 +389,18 @@
   progress {
     @apply h-1.5 w-full overflow-hidden rounded-full;
     appearance: none;
-    background: #d6dfcb;
+    background: #e1d3e8;
     border: 0;
   }
   progress::-webkit-progress-bar {
-    background: #d6dfcb;
+    background: #e1d3e8;
   }
   progress::-webkit-progress-value {
-    background: #426a48;
+    background: #79508e;
     border-radius: 6px;
   }
   progress::-moz-progress-bar {
-    background: #426a48;
+    background: #79508e;
   }
   .lesson-layout {
     @apply grid gap-6 xl:grid-cols-[235px_1fr];
@@ -417,19 +417,19 @@
     width: 100%;
   }
   .lesson-step.selected {
-    @apply border-sage bg-soft text-accent;
+    @apply border-secondary bg-soft text-accent;
   }
   .step-circle {
     @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line text-xs bg-surface;
   }
   .lesson-step.completed .step-circle {
-    @apply border-forest bg-forest text-white;
+    @apply border-primary bg-primary text-white;
   }
   .lesson-content {
     @apply p-6 sm:p-9 min-w-0;
   }
   .scripture-reference {
-    @apply mt-6 flex items-center gap-4 rounded-xl border-l-[3px] border-sage bg-soft px-5 py-4 text-accent;
+    @apply mt-6 flex items-center gap-4 rounded-xl border-l-[3px] border-secondary bg-soft px-5 py-4 text-accent;
   }
   .reflection-note {
     @apply mt-8 flex gap-3 rounded-xl bg-paper p-4 text-xs text-muted leading-relaxed;
@@ -441,10 +441,10 @@
     @apply grid min-h-dvh lg:grid-cols-2;
   }
   .auth-story {
-    @apply hidden lg:flex min-h-dvh flex-col justify-between overflow-hidden bg-forest text-white px-12 py-10 xl:px-20;
+    @apply hidden lg:flex min-h-dvh flex-col justify-between overflow-hidden bg-primary text-white px-12 py-10 xl:px-20;
   }
   .auth-story .brand-dot {
-    @apply text-lime;
+    @apply text-peach;
   }
   .auth-story-content {
     @apply mt-14;
@@ -470,7 +470,7 @@
     @apply min-w-0 w-full border-0 bg-transparent focus:outline-none;
   }
   .password-field:focus-within {
-    @apply ring-2 ring-sage;
+    @apply ring-2 ring-secondary;
   }
   .profile-row {
     @apply flex flex-col gap-2 py-5 text-sm;
@@ -494,11 +494,11 @@
     resize: vertical;
   }
   textarea:focus {
-    outline: 2px solid #80977a;
+    outline: 2px solid #785484;
     outline-offset: 1px;
   }
   textarea::placeholder {
-    color: #8b948b;
+    color: #817489;
   }
 }
 @layer components {
@@ -511,7 +511,7 @@
     min-height: 42px;
   }
   .feature-tabs button[aria-pressed="true"] {
-    @apply bg-forest text-white;
+    @apply bg-primary text-white;
   }
   .picker {
     @apply mt-3 rounded-xl border border-line bg-paper p-4 min-w-0;
@@ -557,19 +557,19 @@
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --color-paper: #142019;
-  --color-surface: #1e2c23;
-  --color-soft: #293c2e;
-  --color-ink: #edf2e9;
-  --color-muted: #b2c0b4;
-  --color-line: #3c5141;
-  --color-accent: #bfdbad;
-  --color-sage: #a5ba99;
-  --color-reading: #d0dacd;
-  --color-warm-soft: #403728;
-  --color-warm-ink: #ead3a6;
-  --color-purple-soft: #383346;
-  --color-purple-ink: #d3c6e6;
+  --color-paper: #100d1d;
+  --color-surface: #1d172c;
+  --color-soft: #30223f;
+  --color-ink: #f5effa;
+  --color-muted: #c0b5cc;
+  --color-line: #493953;
+  --color-accent: #e7b9db;
+  --color-secondary: #cca4d8;
+  --color-reading: #ded3e5;
+  --color-warm-soft: #402c2e;
+  --color-warm-ink: #ffcbb0;
+  --color-purple-soft: #362544;
+  --color-purple-ink: #dbc5ec;
   --color-error-line: #885347;
   --color-error-bg: #402b27;
   --color-error-ink: #ffc3b4;
@@ -590,41 +590,120 @@
 }
 :root[data-theme="dark"] .library-hero,
 :root[data-theme="dark"] .auth-story {
-  background-color: #203e2e;
+  background-color: #24182f;
 }
 :root[data-theme="dark"] .btn-primary,
 :root[data-theme="dark"] .skip-link,
 :root[data-theme="dark"] .lesson-step.completed .step-circle,
 :root[data-theme="dark"] .feature-tabs button[aria-pressed="true"] {
-  background-color: #345d42;
-  border-color: #6c956b;
+  background-color: #704686;
+  border-color: #ab7fbd;
 }
 :root[data-theme="dark"] .btn-primary:hover {
-  background-color: #416e4e;
+  background-color: #805397;
 }
 :root[data-theme="dark"] input::placeholder,
 :root[data-theme="dark"] textarea::placeholder {
-  color: #a5b1a4;
+  color: #bfb0cb;
 }
 :root[data-theme="dark"] :focus-visible {
-  outline-color: #c3de93;
+  outline-color: #ffc4c1;
 }
 :root[data-theme="dark"] progress,
 :root[data-theme="dark"] progress::-webkit-progress-bar {
-  background: #40553e;
+  background: #4a3559;
 }
 :root[data-theme="dark"] progress::-webkit-progress-value {
-  background: #a5c38b;
+  background: #d4aadf;
 }
 :root[data-theme="dark"] progress::-moz-progress-bar {
-  background: #a5c38b;
+  background: #d4aadf;
 }
 /* Keep the decorative pastel thumbnails' captions readable in both themes. */
 :root[data-theme="dark"] .art-play {
-  background: #1e2c23e6;
+  background: #1d172ce6;
 }
 
-/* This notice keeps its pale lime background in either theme. */
+/* This notice keeps its pale peach background in either theme. */
 .update-banner {
-  color: #254c3c;
+  color: #593575;
+}
+
+/* Brand accents use the reference's navy → purple → coral → peach palette.
+   A dark overlay gives white text contrast even over the peach endpoint. */
+:root {
+  --brand-gradient: linear-gradient(
+    110deg,
+    #080b26 0%,
+    #3e285b 35%,
+    #f44268 72%,
+    #ffb58c 100%
+  );
+}
+.auth-story,
+.library-hero {
+  background-image:
+    linear-gradient(110deg, rgb(8 11 38 / 40%), rgb(8 11 38 / 52%)),
+    var(--brand-gradient);
+  background-color: #080b26;
+}
+.brand-dot {
+  color: #b03e68;
+}
+:root[data-theme="dark"] .brand-dot {
+  color: #ffa6bc;
+}
+.sidebar-note {
+  background-image: linear-gradient(
+    125deg,
+    color-mix(in srgb, var(--color-soft) 90%, #f44268),
+    var(--color-soft)
+  );
+}
+.hero-landscape .hill {
+  opacity: 0.45;
+}
+.hero-landscape .sun {
+  opacity: 0.5;
+}
+.nav-item.active {
+  box-shadow: inset 3px 0 #b44880;
+}
+.update-banner,
+.update-banner .text-link {
+  color: #3e285b;
+}
+/* Mobile account screens get a compact brand banner; forms stay on a solid surface. */
+.auth-mobile-brand {
+  width: 100%;
+  max-width: 24rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 1.25rem;
+  color: white;
+  background-image:
+    linear-gradient(110deg, rgb(8 11 38 / 40%), rgb(8 11 38 / 52%)),
+    var(--brand-gradient);
+}
+.auth-mobile-brand .brand-dot {
+  color: #ffb58c;
+}
+/* The gradient is the hero artwork; extra landscape shapes could reduce text contrast. */
+.hero-landscape {
+  display: none;
+}
+/* Keep the account banner's peach edge vivid; its copy sits over the shaded left side. */
+.auth-story,
+.auth-mobile-brand {
+  background-image:
+    linear-gradient(
+      110deg,
+      rgb(8 11 38 / 44%) 0%,
+      rgb(8 11 38 / 44%) 65%,
+      rgb(8 11 38 / 10%) 100%
+    ),
+    var(--brand-gradient);
+}
+.auth-story > p:last-child {
+  max-width: 24rem;
+  line-height: 1.6;
 }

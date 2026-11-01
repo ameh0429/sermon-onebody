@@ -67,7 +67,7 @@ export function Empty({
 }) {
   return (
     <div className="state-box rounded-2xl border border-dashed border-line bg-surface/60">
-      <BookOpen size={28} className="text-sage" />
+      <BookOpen size={28} className="text-secondary" />
       <h2 className="font-serif text-2xl text-ink">{title}</h2>
       <div className="max-w-md text-center">{children}</div>
     </div>

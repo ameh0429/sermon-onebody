@@ -78,10 +78,10 @@ export function GroupsPage() {
             {query.data.data.map((g) => (
               <Link
                 to={`/groups/${g.id}`}
-                className="panel p-6 hover:border-sage"
+                className="panel p-6 hover:border-secondary"
                 key={g.id}
               >
-                <Users size={28} className="text-sage" />
+                <Users size={28} className="text-secondary" />
                 <h2 className="font-serif text-2xl mt-5">{g.name}</h2>
                 <p className="text-sm text-muted line-clamp-3 mt-3">
                   {g.description ?? "A space to connect and grow."}

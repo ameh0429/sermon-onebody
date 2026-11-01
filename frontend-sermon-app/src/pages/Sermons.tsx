@@ -60,13 +60,13 @@ export function SermonLibrary() {
       <section className="library-hero">
         <div className="relative z-10">
           <span className="hero-label">
-            <span className="h-1.5 w-1.5 rounded-full bg-lime" />
+            <span className="h-1.5 w-1.5 rounded-full bg-peach" />
             LISTEN. REFLECT. LIVE IT OUT.
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl leading-tight mt-5">
             Let the Word take root.
           </h2>
-          <p className="mt-4 text-green-50/75 max-w-sm text-sm leading-relaxed">
+          <p className="mt-4 text-white/85 max-w-sm text-sm leading-relaxed">
             More than a Sunday message. Find a truth to carry with you into the
             everyday.
           </p>
@@ -85,7 +85,7 @@ export function SermonLibrary() {
           <Sprout
             size={105}
             strokeWidth={0.7}
-            className="absolute bottom-3 right-10 text-green-100/40"
+            className="absolute bottom-3 right-10 text-white/30"
           />
         </div>
       </section>
@@ -118,7 +118,7 @@ export function SermonLibrary() {
             </div>
           </div>
           <button
-            className={`btn-secondary ${filterCount ? "border-sage!" : ""}`}
+            className={`btn-secondary ${filterCount ? "border-secondary!" : ""}`}
             type="button"
             aria-expanded={filters}
             aria-controls="sermon-filters"
