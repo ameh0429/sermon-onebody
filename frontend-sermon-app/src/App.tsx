@@ -163,9 +163,7 @@ function Layout() {
         <main id="main-content" className="main-content" tabIndex={-1}>
           <Outlet />
         </main>
-        <footer className="app-footer">
-          Love: Hearts, Eyes, Hands, Feet.
-        </footer>
+        <footer className="app-footer">Love: Hearts, Eyes, Hands, Feet.</footer>
       </div>
       <nav
         className="bottom-nav"
@@ -193,8 +191,11 @@ function Layout() {
 export default function App() {
   return (
     <Routes>
-      <Route path="/login" element={<AccountPage />} />
-      <Route path="/register" element={<AccountPage register />} />
+      <Route path="/login" element={<AccountPage key="login" />} />
+      <Route
+        path="/register"
+        element={<AccountPage key="register" register />}
+      />
       <Route element={<Layout />}>
         <Route index element={<Navigate to="/sermons" replace />} />
         <Route path="sermons" element={<SermonLibrary />} />
