@@ -14,35 +14,10 @@ import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../auth";
 import { Brand, ErrorState, formatDate, PageHeading } from "../ui";
 import { InstallApp, PwaStatus } from "../pwa";
-import {
-  forgetAccount,
-  readRememberedAccount,
-  rememberAccount,
-} from "../rememberedAccount";
 import { ThemeControl } from "../theme";
 export function AccountPage({ register = false }: { register?: boolean }) {
   const { user, login, expired } = useAuth();
   const location = useLocation();
-  const [remembered, setRemembered] = useState(readRememberedAccount);
-  const [email, setEmail] = useState(() =>
-    register ? "" : (readRememberedAccount()?.email ?? ""),
-  );
-  const [remember, setRemember] = useState(
-    () => !register && !!readRememberedAccount(),
-  );
-  const personalized =
-    !register && remembered && email.trim().toLowerCase() === remembered.email;
-  function useAnotherAccount() {
-    forgetAccount();
-    setRemembered(null);
-    setEmail("");
-    setRemember(false);
-    setError(null);
-    setShow(false);
-    const password = document.getElementById("password");
-    if (password instanceof HTMLInputElement) password.value = "";
-    document.getElementById("account-email")?.focus();
-  }
   const [pending, setPending] = useState(false),
     [error, setError] = useState<unknown>(null),
     [show, setShow] = useState(false);
@@ -61,7 +36,7 @@ export function AccountPage({ register = false }: { register?: boolean }) {
     setPending(true);
     setError(null);
     try {
-      const account = await login(
+      await login(
         {
           email: String(values.get("email")).trim(),
           password: String(values.get("password")),
@@ -69,11 +44,6 @@ export function AccountPage({ register = false }: { register?: boolean }) {
         },
         register,
       );
-      if (!register) {
-        if (remember)
-          rememberAccount({ name: account.name, email: account.email });
-        else forgetAccount();
-      }
     } catch (err) {
       setError(err);
     } finally {
@@ -118,18 +88,10 @@ export function AccountPage({ register = false }: { register?: boolean }) {
         </div>
         <div className="w-full max-w-sm">
           <p className="eyebrow">
-            {register
-              ? "YOUR NEXT CHAPTER"
-              : personalized
-                ? "YOUR DAILY WALK"
-                : "WELCOME BACK"}
+            {register ? "YOUR NEXT CHAPTER" : "WELCOME BACK"}
           </p>
           <h2 className="font-serif text-4xl text-ink mt-3">
-            {register
-              ? "Let’s grow together."
-              : personalized
-                ? `Welcome back, ${remembered.name}.`
-                : "Good to see you."}
+            {register ? "Let’s grow together." : "Good to see you."}
           </h2>
           <p className="text-muted mt-3 mb-8 leading-relaxed">
             {register
@@ -166,19 +128,8 @@ export function AccountPage({ register = false }: { register?: boolean }) {
             <label className="field">
               Email address
               <input
-                id="account-email"
                 type="email"
                 name="email"
-                value={email}
-                disabled={pending}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (
-                    remembered &&
-                    e.target.value.trim().toLowerCase() !== remembered.email
-                  )
-                    setRemember(false);
-                }}
                 autoComplete="email"
                 required
                 maxLength={255}
@@ -212,38 +163,6 @@ export function AccountPage({ register = false }: { register?: boolean }) {
                 </button>
               </div>
             </div>
-            {!register && (
-              <div className="space-y-3">
-                <label className="flex items-center gap-3 text-sm text-ink cursor-pointer">
-                  <input
-                    className="remember-checkbox"
-                    type="checkbox"
-                    checked={remember}
-                    disabled={pending}
-                    onChange={(e) => setRemember(e.target.checked)}
-                    aria-describedby="remember-account-help"
-                  />
-                  Remember my name on this device
-                </label>
-                <p
-                  id="remember-account-help"
-                  className="text-xs text-muted leading-relaxed"
-                >
-                  Saves your name and email for next time, not your password or
-                  sign-in session. Leave off on shared devices.
-                </p>
-                {remembered && (
-                  <button
-                    type="button"
-                    className="text-link text-sm"
-                    onClick={useAnotherAccount}
-                    disabled={pending}
-                  >
-                    Use another account
-                  </button>
-                )}
-              </div>
-            )}
             {error != null && <ErrorState error={error} />}
             <button
               className="btn-primary w-full justify-between"

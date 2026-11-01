@@ -10,7 +10,7 @@
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 0.0.0.0",
-    "test:e2e": "playwright test member.spec.ts && playwright test community.spec.ts && playwright test theme.spec.ts && playwright test photo.spec.ts && playwright test remembered-account.spec.ts"
+    "test:e2e": "playwright test member.spec.ts && playwright test community.spec.ts && playwright test theme.spec.ts && playwright test photo.spec.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.105.0",

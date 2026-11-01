@@ -707,14 +707,3 @@
   max-width: 24rem;
   line-height: 1.6;
 }
-
-@layer components {
-  .remember-checkbox {
-    width: 1.1rem;
-    height: 1.1rem;
-    min-height: 0;
-    padding: 0;
-    flex-shrink: 0;
-    accent-color: var(--color-primary);
-  }
-}

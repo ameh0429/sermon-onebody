@@ -15,7 +15,7 @@ interface Auth {
   login: (
     body: { email: string; password: string; name?: string },
     register?: boolean,
-  ) => Promise<User>;
+  ) => Promise<void>;
   logout: () => void;
   refresh: () => Promise<void>;
   updateAccount: (request: () => Promise<Envelope<User>>) => Promise<void>;
@@ -55,7 +55,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     session.set(data.token);
     setUser(data.user);
     setExpired(false);
-    return data.user;
   }
   async function refresh() {
     const current = generation.current;
