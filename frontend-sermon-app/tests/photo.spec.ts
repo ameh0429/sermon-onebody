@@ -47,7 +47,7 @@ test("preview, multipart upload, shared avatars, replacement, cancellation and r
   page,
 }) => {
   await profile(page);
-  const png = await readFile("public/icon-192.png");
+  const png = await readFile("tests/fixtures/test-photo.png");
   let uploads = 0;
   await page.route(photoUrl, (route) =>
     route.fulfill({ contentType: "image/png", body: png }),
@@ -77,13 +77,13 @@ test("preview, multipart upload, shared avatars, replacement, cancellation and r
   });
   await page
     .getByLabel("Choose profile photo")
-    .setInputFiles("public/icon-192.png");
+    .setInputFiles("tests/fixtures/test-photo.png");
   await expect(page.getByAltText("New profile photo preview")).toBeVisible();
   await page.getByRole("button", { name: "Cancel selection" }).click();
   await expect(page.getByAltText("New profile photo preview")).toHaveCount(0);
   await page
     .getByLabel("Choose profile photo")
-    .setInputFiles("public/icon-192.png");
+    .setInputFiles("tests/fixtures/test-photo.png");
   await page.getByRole("button", { name: "Upload photo", exact: true }).click();
   await expect(
     page.getByText("Your profile photo has been updated."),
@@ -91,7 +91,7 @@ test("preview, multipart upload, shared avatars, replacement, cancellation and r
   await expect(page.locator(`img[src="${photoUrl}"]`)).toHaveCount(4);
   await page
     .getByLabel("Choose profile photo")
-    .setInputFiles("public/icon-192.png");
+    .setInputFiles("tests/fixtures/test-photo.png");
   await page.getByRole("button", { name: "Upload photo", exact: true }).click();
   await expect.poll(() => uploads).toBe(2);
   await page.getByRole("button", { name: "Dark", exact: true }).click();
@@ -141,7 +141,7 @@ test("client validation and failed upload preserve existing avatar and selected 
   );
   await page
     .getByLabel("Choose profile photo")
-    .setInputFiles("public/icon-192.png");
+    .setInputFiles("tests/fixtures/test-photo.png");
   await page.getByRole("button", { name: "Upload photo", exact: true }).click();
   await expect(page.getByRole("alert")).toContainText("not configured");
   await expect(page.getByAltText("New profile photo preview")).toBeVisible();
@@ -167,7 +167,7 @@ test("broken photo falls back to initial; expired uploads cannot restore a signe
   );
   await page
     .getByLabel("Choose profile photo")
-    .setInputFiles("public/icon-192.png");
+    .setInputFiles("tests/fixtures/test-photo.png");
   await page.getByRole("button", { name: "Upload photo", exact: true }).click();
   await expect(
     page.getByText("Your profile photo has been updated."),
@@ -186,7 +186,7 @@ test("broken photo falls back to initial; expired uploads cannot restore a signe
   );
   await page
     .getByLabel("Choose profile photo")
-    .setInputFiles("public/icon-192.png");
+    .setInputFiles("tests/fixtures/test-photo.png");
   await page.getByRole("button", { name: "Upload photo", exact: true }).click();
   await expect(
     page.getByText("Your session ended. Please sign in again."),
