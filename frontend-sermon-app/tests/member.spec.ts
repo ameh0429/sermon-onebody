@@ -374,6 +374,11 @@ test("PWA manifest, service worker and offline application shell", async ({
   const manifest = await (await request.get("/manifest.webmanifest")).json();
   expect(manifest.display).toBe("standalone");
   expect(manifest.icons).toHaveLength(2);
+  expect(
+    manifest.icons.every((icon: { src: string }) =>
+      icon.src.startsWith("https://res.cloudinary.com/dxpopimi3/"),
+    ),
+  ).toBe(true);
   await page.goto("/login");
   await page.evaluate(async () => {
     await navigator.serviceWorker.ready;

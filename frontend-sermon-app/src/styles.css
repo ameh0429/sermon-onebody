@@ -90,8 +90,8 @@
   .brand {
     @apply inline-flex items-center gap-2.5 font-semibold text-[27px] tracking-[-1.3px] leading-none;
   }
-  .brand-icon {
-    @apply bg-forest text-white rounded-[13px] h-10 w-10 inline-flex justify-center items-center;
+  .brand-image {
+    @apply h-10 w-10 shrink-0 object-contain;
   }
   .brand-dot {
     @apply text-sage;
@@ -186,8 +186,8 @@
   .mobile-header .brand {
     @apply text-2xl;
   }
-  .mobile-header .brand-icon {
-    @apply h-8 w-8 rounded-[10px];
+  .mobile-header .brand-image {
+    @apply h-8 w-8;
   }
   .main-content {
     @apply mx-auto w-full max-w-[1280px] px-5 pt-8 pb-10 sm:px-8 sm:pt-10 lg:px-10 lg:pt-11;
@@ -443,9 +443,6 @@
   .auth-story {
     @apply hidden lg:flex min-h-dvh flex-col justify-between overflow-hidden bg-forest text-white px-12 py-10 xl:px-20;
   }
-  .auth-story .brand-icon {
-    @apply bg-white/15;
-  }
   .auth-story .brand-dot {
     @apply text-lime;
   }
@@ -596,7 +593,6 @@
   background-color: #203e2e;
 }
 :root[data-theme="dark"] .btn-primary,
-:root[data-theme="dark"] .brand-icon,
 :root[data-theme="dark"] .skip-link,
 :root[data-theme="dark"] .lesson-step.completed .step-circle,
 :root[data-theme="dark"] .feature-tabs button[aria-pressed="true"] {
