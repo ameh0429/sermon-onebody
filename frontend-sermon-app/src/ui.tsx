@@ -15,7 +15,7 @@ export function Brand() {
         <Sprout size={25} strokeWidth={1.7} />
       </span>
       <span>
-        onebody<span className="brand-dot">.</span>
+        Onebody<span className="brand-dot">.</span>
       </span>
     </span>
   );
