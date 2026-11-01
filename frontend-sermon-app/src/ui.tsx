@@ -5,17 +5,24 @@ import {
   ArrowRight,
   BookOpen,
   LoaderCircle,
-  Sprout,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 export function Brand() {
   return (
     <span className="brand">
-      <span className="brand-icon">
-        <Sprout size={25} strokeWidth={1.7} />
-      </span>
+      <img
+        src="https://res.cloudinary.com/dxpopimi3/image/upload/v1793571514/onebody-logo-removebg-preview_k4vg3x.png"
+        alt=""
+        width={40}
+        height={40}
+        className="brand-image"
+        referrerPolicy="no-referrer"
+        onError={(event) => {
+          event.currentTarget.style.display = "none";
+        }}
+      />
       <span>
-        onebody<span className="brand-dot">.</span>
+        Onebody<span className="brand-dot">.</span>
       </span>
     </span>
   );
