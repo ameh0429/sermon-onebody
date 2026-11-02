@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import { AppError } from '../utils/AppError.js';
+import { logger } from '../utils/logger.js';
 import { z } from 'zod';
 import { authenticate } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
@@ -33,7 +35,11 @@ bibleRouter.get('/translations', async (_req,res) => {
   const provider = youVersion();
   if (!provider) return res.json({ status:'success', data:translations });
   try { return res.json({ status:'success', data:[...translations,...await provider.translations()] }); }
-  catch { return res.json({ status:'success', data:translations, warning:'YouVersion translations could not be loaded. ASV and YLT remain available.' }); }
+  catch (error) {
+    // Log only adapter-generated diagnostics; never upstream bodies, URLs, or keys.
+    const diagnostic = error instanceof AppError ? JSON.stringify(error.details ?? { kind:'unavailable' }) : 'unavailable';
+    logger.warn(`YouVersion catalog unavailable: ${diagnostic}`);
+    return res.json({ status:'success', data:translations, warning:'YouVersion translations could not be loaded. ASV and YLT remain available.' }); }
 });
 /**
  * @openapi

@@ -244,3 +244,5 @@ node --test scripts/youversion-test.mjs
 ```
 
 A real App Key and network access to YouVersion are required to verify your account's version list and live passages.
+
+If the reader reports that YouVersion translations could not be loaded, run `npm run check:youversion` **from this backend directory**. It checks `.env`, the live licensed collection, and NIV/NLT/NKJV availability without printing the App Key or upstream response bodies. Backend logs now distinguish HTTP failures (`upstreamStatus`) from invalid response fields (`response_shape`). A terminal `next_page_token: null` is supported. Local `.env` changes are not synced into remote development workspaces.

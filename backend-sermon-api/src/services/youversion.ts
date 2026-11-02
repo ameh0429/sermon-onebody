@@ -15,7 +15,7 @@ const versionSchema = z.object({
 });
 const collectionSchema = z.object({
   data: z.array(versionSchema),
-  next_page_token: z.string().optional(),
+  next_page_token: z.string().nullish(),
 });
 const indexSchema = z.object({
   books: z.array(
@@ -47,10 +47,21 @@ export class YouVersion {
     } catch (error) {
       if (error instanceof AppError) throw error;
       const status = getHttpStatus(error);
+      const details =
+        status !== undefined
+          ? { kind: "http", upstreamStatus: status }
+          : error instanceof z.ZodError
+            ? {
+                kind: "response_shape",
+                fields: error.issues.map((issue) => issue.path.join(".")),
+              }
+            : { kind: "request_or_display_failure" };
+
       if (status === 403 || status === 401)
         throw new AppError(
           503,
           "YouVersion access is unavailable. Check the App Key and accepted licenses. ASV and YLT remain available.",
+          details,
         );
       if (status === 404)
         throw AppError.notFound(
@@ -60,6 +71,7 @@ export class YouVersion {
       throw new AppError(
         503,
         "YouVersion is temporarily unavailable. Try again or choose ASV or YLT.",
+        details,
       );
     }
   }
@@ -81,7 +93,7 @@ export class YouVersion {
         for (const version of result.data)
           if (/^en(?:-|$)/i.test(version.language_tag))
             found.set(version.id, version);
-        token = result.next_page_token;
+        token = result.next_page_token ?? undefined;
         if (!token) break;
         if (tokens.has(token) || page === 29)
           throw new Error("Invalid collection pagination");

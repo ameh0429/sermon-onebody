@@ -185,3 +185,28 @@ test("upstream errors do not leak key or request details", async () => {
     (e) => e.statusCode === 503 && !e.message.includes("test-key"),
   );
 });
+
+test("null terminal pagination token is accepted", async () => {
+  mock(() => json({ data: [version], next_page_token: null }));
+  assert.equal(
+    (await new YouVersion("test-key").translations())[0].id,
+    "yv-9876",
+  );
+});
+test("safe diagnostics distinguish upstream HTTP and response validation failures", async () => {
+  mock(() => json({ message: "secret test-key" }, 403));
+  await assert.rejects(
+    new YouVersion("test-key").translations(),
+    (e) =>
+      e.details.upstreamStatus === 403 &&
+      !JSON.stringify(e.details).includes("test-key"),
+  );
+  mock(() => json({ data: [{ ...version, title: null }] }));
+  await assert.rejects(
+    new YouVersion("test-key").translations(),
+    (e) =>
+      e.details.kind === "response_shape" &&
+      e.details.fields.includes("data.0.title") &&
+      !JSON.stringify(e.details).includes("test-key"),
+  );
+});
