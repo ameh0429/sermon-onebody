@@ -51,7 +51,7 @@ export function AccountPage({ register = false }: { register?: boolean }) {
   }
   return (
     <div className="auth-page">
-      <section className="auth-story">
+      <section className="auth-story isolate">
         <Link to="/login">
           <Brand />
         </Link>
@@ -67,7 +67,7 @@ export function AccountPage({ register = false }: { register?: boolean }) {
           <img
             src="https://res.cloudinary.com/dxpopimi3/image/upload/v1793655639/ScreenShot_11_2_2026_10_04_26_PM_y3z02k.png"
             alt=""
-            className="mt-6 block h-auto max-h-40 w-full rounded-xl object-contain object-left"
+            className="auth-brand-symbols mt-6 block h-auto max-h-40 w-full object-contain object-left"
             loading="lazy"
             decoding="async"
             onError={event => { event.currentTarget.style.display = "none"; }}
