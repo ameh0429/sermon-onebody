@@ -1,3 +1,4 @@
+import { BibleLink } from "./Bible";
 import { useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -345,6 +346,9 @@ function DailyLesson({
           <div>
             <p className="eyebrow text-[9px]! mb-1">TODAY’S SCRIPTURE</p>
             <p className="font-serif text-xl">{l.passage}</p>
+            <div className="mt-3">
+              <BibleLink reference={l.passage} />
+            </div>
           </div>
         </div>
       )}

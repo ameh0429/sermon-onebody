@@ -1,3 +1,4 @@
+import { bibleRouter } from './bible.routes.js';
 import { adminRouter } from './admin.routes.js';
 import { studyPlanRouter } from './studyPlan.routes.js';
 import { Router } from 'express';
@@ -10,6 +11,7 @@ import { discussionRouter } from './discussion.routes.js';
 
 export const apiRouter = Router();
 
+apiRouter.use('/bible', bibleRouter);
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/users', usersRouter);
 apiRouter.use('/sermons', sermonRouter);

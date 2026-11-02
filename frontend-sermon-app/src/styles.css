@@ -707,3 +707,17 @@
   max-width: 24rem;
   line-height: 1.6;
 }
+
+@layer components {
+  .bible-text {
+    line-height: 1.95;
+    overflow-wrap: anywhere;
+    max-width: 70ch;
+    margin-inline: auto;
+  }
+  #bible-font {
+    min-height: 24px;
+    padding: 0;
+    accent-color: var(--color-primary);
+  }
+}

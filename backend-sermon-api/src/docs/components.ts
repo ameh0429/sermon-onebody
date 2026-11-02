@@ -1,3 +1,4 @@
+import { bibleSchemas } from './bible.js';
 import { adminSchemas } from './admin.js';
 import { studyPlanSchemas } from './studyPlans.js';
 /** Reusable OpenAPI components: security scheme, schemas (with examples) and error responses. */
@@ -27,6 +28,7 @@ export const securitySchemes = {
 };
 
 export const schemas = {
+  ...bibleSchemas,
   ...studyPlanSchemas,
   ...adminSchemas,
   // ---------------------------------------------------------------- core

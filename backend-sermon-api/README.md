@@ -201,3 +201,27 @@ node --env-file=.env --test scripts/avatar-test.mjs
 ```
 
 The tests inject an in-memory storage adapter into `createApp` and exercise real HTTP multipart parsing, Sharp processing, authentication, PostgreSQL transactions, concurrent replacement, failure cleanup, deactivation, rate limits and CORS. They do not contact Cloudinary or modify real profile photos. Browser tests separately cover previews, multipart requests, shared avatars and error handling with explicitly intercepted storage responses. A real Cloudinary upload/delete smoke check is still required after credentials are configured.
+
+## Bible reader
+
+The member app includes an online reader with **American Standard Version (1901)** and **Young's Literal Translation (1898)**. These public-domain editions are bundled on the backend with source revision, licenses and SHA-256 integrity checks under `data/bibles/`; no Bible API key, database migration or external service is required. Include that directory in deployment artifacts along with `dist/`. See `data/bibles/README.md` for provenance and the supported 66-book canon. Copyrighted editions such as NIV, NKJV and ESV are not included; adding them requires an appropriate provider licence and implementation.
+
+Authenticated endpoints, documented under the Swagger **Bible** tag:
+
+| Endpoint | Query / behavior |
+|---|---|
+| `GET /api/v1/bible/translations` | Supported editions and public-domain/source attribution |
+| `GET /api/v1/bible/books` | `translationId=asv` (default) or `ylt`; canonical book IDs/chapter counts |
+| `GET /api/v1/bible/chapters` | `translationId`, `bookId=JHN`; chapter/verse counts |
+| `GET /api/v1/bible/passages` | `translationId` plus either `reference=John 3:16–18` or `bookId=JHN&chapter=3&fromVerse=16&toVerse=18` |
+
+Passages are restricted to a single chapter per request. Common English abbreviations and Arabic/Roman prefixes are supported (`Eph. 2`, `1 John 1:9`, `I John 1:9`). Multi-chapter/multi-book/comma-separated references return a useful error; callers can use structured navigation instead. Verse and chapter bounds are checked against the selected edition, and previous/next links cross book boundaries. Source editions' empty numbered records receive a note, not fabricated text. API responses have `Cache-Control: private, no-store`; corpus data is cached only in server process memory, not per user.
+
+Validation against a local development database:
+
+```bash
+npm run build
+node --env-file=.env --test scripts/bible-test.mjs
+```
+
+The suite checks both complete editions, pinned data checksums, known differing translation text, aliases/ranges, omission records, navigation boundaries, input errors, authentication, response caching policy and Swagger. Its temporary user is removed after testing.

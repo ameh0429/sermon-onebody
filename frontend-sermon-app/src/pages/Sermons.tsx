@@ -1,3 +1,4 @@
+import { BibleLink } from "./Bible";
 import { BookmarkToggle } from "./Personal";
 import { useEffect, useState, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -467,6 +468,9 @@ export function SermonDetail() {
           </span>
         </p>
       </header>
+      <div className="mb-5">
+        <BibleLink reference={s.passage} />
+      </div>
       <BookmarkToggle sermonId={s.id} />
       <Link
         className="text-link inline-block text-sm mb-6"
