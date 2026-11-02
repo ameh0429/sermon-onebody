@@ -204,14 +204,14 @@ The tests inject an in-memory storage adapter into `createApp` and exercise real
 
 ## Bible reader
 
-The member app includes an online reader with **American Standard Version (1901)** and **Young's Literal Translation (1898)**. These public-domain editions are bundled on the backend with source revision, licenses and SHA-256 integrity checks under `data/bibles/`; no Bible API key, database migration or external service is required. Include that directory in deployment artifacts along with `dist/`. See `data/bibles/README.md` for provenance and the supported 66-book canon. Copyrighted editions such as NIV, NKJV and ESV are not included; adding them requires an appropriate provider licence and implementation.
+The member app includes an online reader with **American Standard Version (1901)** and **Young's Literal Translation (1898)**. These public-domain editions are bundled on the backend with source revision, licenses and SHA-256 integrity checks under `data/bibles/`; no Bible API key, database migration or external service is required. Include that directory in deployment artifacts along with `dist/`. See `data/bibles/README.md` for provenance and the supported 66-book canon. Optional YouVersion editions are fetched on demand; copyrighted Bible text is never bundled.
 
 Authenticated endpoints, documented under the Swagger **Bible** tag:
 
 | Endpoint | Query / behavior |
 |---|---|
-| `GET /api/v1/bible/translations` | Supported editions and public-domain/source attribution |
-| `GET /api/v1/bible/books` | `translationId=asv` (default) or `ylt`; canonical book IDs/chapter counts |
+| `GET /api/v1/bible/translations` | Local editions and English editions currently licensed to the configured YouVersion key |
+| `GET /api/v1/bible/books` | `translationId=asv` (default), `ylt`, or `yv-<API version ID>`; book IDs/chapter counts |
 | `GET /api/v1/bible/chapters` | `translationId`, `bookId=JHN`; chapter/verse counts |
 | `GET /api/v1/bible/passages` | `translationId` plus either `reference=John 3:16–18` or `bookId=JHN&chapter=3&fromVerse=16&toVerse=18` |
 
@@ -225,3 +225,22 @@ node --env-file=.env --test scripts/bible-test.mjs
 ```
 
 The suite checks both complete editions, pinned data checksums, known differing translation text, aliases/ranges, omission records, navigation boundaries, input errors, authentication, response caching policy and Swagger. Its temporary user is removed after testing.
+
+### Optional YouVersion editions
+
+Set `YVP_APP_KEY` in the backend environment and restart it. (`YOUVERSION_APP_KEY` is accepted as a legacy alias.) No migration is needed. Never commit a real key. With no key, ASV/YLT continue to work.
+
+The catalog fetches `/v1/bibles` using `language_ranges[]=en`, `all_available=false`, `page_size=99`, and every `next_page_token`. Only versions returned by the licensed collection can be requested, including by direct URL. IDs and availability are discovered rather than hardcoded. NIV/Biblica access does not imply NLT or NKJV access: accept their appropriate publisher licenses and confirm they appear in the API collection first. This integration lists all available English editions.
+
+The official `@youversion/platform-core` SDK plus `jsdom` produces sanitized/transformed passage HTML, current publisher attribution on **every passage request**, and the required YouVersion Bible/font stylesheet URLs. Missing attribution blocks display. The index supplies edition-specific chapter/verse bounds; local ASV verse counts are not substituted for licensed editions. Responses use `private, no-store`; licensed passages and attribution have no server cache or offline download. Collection failure returns the local editions with a visible warning; a selected provider failure offers ASV/YLT without silently substituting text.
+
+The required font stylesheet URL contains the App Key and is visible in the browser, as specified by YouVersion's display guide. This App Key is not a private server secret like the Cloudinary API secret. Do not log the URL or bake credentials into frontend builds. Hosting CSP must allow `https://cdn.youversion.com` for styles/fonts and `https://api.youversion.com` for styles. Font files stay on YouVersion's CDN. Keep Bible access consistent with your accepted publisher agreements and the non-commercial/no-ads/no-paywall application commitments.
+
+Validation without a live key (invented fixtures, official SDK rendering):
+
+```sh
+npm run build
+node --test scripts/youversion-test.mjs
+```
+
+A real App Key and network access to YouVersion are required to verify your account's version list and live passages.

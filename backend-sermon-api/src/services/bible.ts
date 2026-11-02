@@ -52,18 +52,23 @@ function normalizeBook(value: string) {
   return value.trim().toLowerCase().replace(/^iii(?=\s|john)/,'3').replace(/^ii(?=\s|sam|king|chron|cor|thess|tim|pet|john)/,'2').replace(/^i(?=\s|sam|king|chron|cor|thess|tim|pet|john)/,'1').replace(/[\s.]/g,'');
 }
 export interface PassageRequest { translationId: string; reference?: string; bookId?: string; chapter?: number; fromVerse?: number; toVerse?: number }
-export async function passage(request: PassageRequest) {
-  const version = translation(request.translationId);
-  const bible = await load(version.id);
+// Shared syntax and aliases; each provider supplies its own books and validates its own bounds.
+export function resolvePassageRequest(request: PassageRequest, availableBooks: {id: string; name: string}[]) {
   let { bookId, chapter, fromVerse, toVerse } = request;
   if (request.reference) {
     const match = /^([1-3]?\s*[A-Za-z][A-Za-z .]*?)\s*(\d{1,3})(?:\s*:\s*(\d{1,3})(?:\s*[-–—]\s*(\d{1,3}))?)?$/.exec(request.reference.trim());
     if (!match) throw AppError.badRequest('Use one chapter or verse range, such as John 3, John 3:16–18, or 1 John 1:9. For multiple chapters, use chapter navigation.');
     const candidate = normalizeBook(match[1]);
-    bookId = bible.books.find(b => [b.name,b.id,...(abbreviations[b.id] ?? [])].some(n => normalizeBook(n) === candidate))?.id;
+    bookId = availableBooks.find(b => [b.name,b.id,...(abbreviations[b.id] ?? [])].some(n => normalizeBook(n) === candidate))?.id;
     if (!bookId) throw AppError.badRequest('Book not recognized. Choose a book and chapter below.');
     chapter = Number(match[2]); fromVerse = match[3] ? Number(match[3]) : undefined; toVerse = match[4] ? Number(match[4]) : fromVerse;
   }
+  return { bookId, chapter, fromVerse, toVerse };
+}
+export async function passage(request: PassageRequest) {
+  const version = translation(request.translationId);
+  const bible = await load(version.id);
+  const { bookId, chapter, fromVerse, toVerse } = resolvePassageRequest(request, bible.books);
   const index = bible.books.findIndex(b => b.id === bookId);
   if (index < 0) throw AppError.notFound('Bible book not found.');
   const book = bible.books[index]; const selected = book.chapters.find(c => c.number === chapter);

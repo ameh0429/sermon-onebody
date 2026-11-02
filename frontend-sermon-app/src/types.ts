@@ -49,6 +49,7 @@ export interface Progress {
   }[];
 }
 export interface Envelope<T> {
+  warning?: string;
   status: string;
   data: T;
   meta?: { page: number; limit: number; total: number; totalPages: number };

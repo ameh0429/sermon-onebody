@@ -259,3 +259,134 @@ test("blocked preference storage and server failures do not crash reader", async
   ).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+test("YouVersion display includes attribution, required styles, theme and size; removes styles on fallback", async ({
+  page,
+}) => {
+  await login(page);
+  const translation = {
+    id: "yv-9876",
+    name: "Test Licensed Edition",
+    abbreviation: "TEST",
+    attribution: "Current test publisher attribution",
+    sourceUrl: "https://www.bible.com/versions/9876",
+    licence: "YouVersion publisher license",
+  };
+  await page.route("https://cdn.youversion.com/platform/1/bible.css", (route) =>
+    route.fulfill({
+      contentType: "text/css",
+      body: '[data-slot="yv-bible-renderer"] {font-size:var(--yv-reader-font-size);line-height:var(--yv-reader-line-height)}',
+    }),
+  );
+  await page.route(
+    "https://api.youversion.com/v1/fonts/1/stylesheet?*",
+    (route) => route.fulfill({ contentType: "text/css", body: "" }),
+  );
+  await page.route("**/api/v1/bible/**", async (route) => {
+    const url = new URL(route.request().url());
+    if (url.pathname.endsWith("/translations"))
+      return route.fulfill({
+        json: {
+          status: "success",
+          data: [
+            {
+              ...translation,
+              id: "asv",
+              name: "American Standard Version (1901)",
+            },
+            translation,
+          ],
+        },
+      });
+    if (url.searchParams.get("translationId") !== "yv-9876")
+      return route.continue();
+    if (url.pathname.endsWith("/books"))
+      return route.fulfill({
+        json: {
+          status: "success",
+          data: [{ id: "JHN", name: "John", chapters: 2 }],
+        },
+      });
+    return route.fulfill({
+      json: {
+        status: "success",
+        data: {
+          translation,
+          book: { id: "JHN", name: "John" },
+          chapter: 1,
+          reference: "John 1:1",
+          fromVerse: 1,
+          toVerse: 1,
+          verses: [],
+          previous: null,
+          next: { bookId: "JHN", chapter: 2 },
+          display: {
+            html: '<p class="yv-v" v="1">Invented licensed fixture text.</p>',
+            containerAttributes: {
+              "data-yv-sdk": "",
+              "data-slot": "yv-bible-renderer",
+            },
+            stylesheets: [
+              {
+                kind: "bible",
+                rel: "stylesheet",
+                href: "https://cdn.youversion.com/platform/1/bible.css",
+              },
+              {
+                kind: "font",
+                rel: "stylesheet",
+                href: "https://api.youversion.com/v1/fonts/1/stylesheet?app_key=test-key",
+              },
+            ],
+          },
+        },
+      },
+    });
+  });
+  await spa(page, "/bible?translation=yv-9876&reference=John%201:1");
+  const text = page.locator('[data-slot="yv-bible-renderer"]');
+  await expect(text).toContainText("Invented licensed fixture text.");
+  await expect(
+    page.getByText("Current test publisher attribution", { exact: true }),
+  ).toBeVisible();
+  await expect(page.locator("head link[data-yv-stylesheet]")).toHaveCount(2);
+  await page.getByLabel("Text size:").fill("24");
+  await expect(text).toHaveCSS("font-size", "24px");
+  await page.evaluate(() => {
+    document.documentElement.dataset.theme = "dark";
+  });
+  await expect(text).toHaveAttribute("data-yv-theme", "dark");
+  await page.getByLabel("Bible translation").selectOption("asv");
+  await expect(page.locator('[data-verse="1"]')).toBeVisible();
+  await expect(page.locator("head link[data-yv-stylesheet]")).toHaveCount(0);
+  await expect(
+    page.getByText("Current test publisher attribution", { exact: true }),
+  ).toHaveCount(0);
+});
+
+test("provider catalog warning preserves local reader", async ({ page }) => {
+  await login(page);
+  await page.route("**/api/v1/bible/translations", (route) =>
+    route.fulfill({
+      json: {
+        status: "success",
+        data: [
+          {
+            id: "asv",
+            name: "American Standard Version (1901)",
+            abbreviation: "ASV",
+          },
+        ],
+        warning:
+          "YouVersion translations could not be loaded. ASV and YLT remain available.",
+      },
+    }),
+  );
+  await spa(page, "/bible");
+  await expect(
+    page
+      .getByRole("status")
+      .filter({ hasText: "YouVersion translations could not be loaded" }),
+  ).toContainText("ASV and YLT remain available.");
+  await expect(page.locator('[data-verse="1"]')).toBeVisible();
+});

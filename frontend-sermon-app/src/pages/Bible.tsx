@@ -3,6 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight, BookOpen, Search } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { api } from "../api";
+import {
+  YouVersionText,
+  type YouVersionDisplay,
+} from "../components/YouVersionText";
 import { ErrorState, Loading, PageHeading } from "../ui";
 interface Translation {
   id: string;
@@ -22,6 +26,7 @@ interface ChapterLocation {
   chapter: number;
 }
 interface Passage {
+  display?: YouVersionDisplay;
   translation: Translation;
   book: { id: string; name: string };
   chapter: number;
@@ -61,7 +66,7 @@ export function BibleReader() {
   const [params, setParams] = useSearchParams();
   const [preferred, setPreferred] = useState(() => {
     const saved = preference("onebody.bible.translation", "asv");
-    return ["asv", "ylt"].includes(saved) ? saved : "asv";
+    return /^(asv|ylt|yv-[1-9]\d{0,9})$/.test(saved) ? saved : "asv";
   });
   const [fontSize, setFontSize] = useState(() => {
     const size = Number(preference("onebody.bible.fontSize", "20"));
@@ -74,6 +79,9 @@ export function BibleReader() {
   const translations = useQuery({
     queryKey: ["bible-translations"],
     queryFn: () => api<Translation[]>("/bible/translations"),
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: "always",
   });
   const books = useQuery({
     queryKey: ["bible-books", version],
@@ -92,7 +100,11 @@ export function BibleReader() {
   }
   const passage = useQuery({
     queryKey: ["bible-passage", query.toString()],
-    queryFn: () => api<Passage>(`/bible/passages?${query}`),
+    queryFn: () =>
+      api<Passage>(`/bible/passages?${query}`, { cache: "no-store" }),
+    staleTime: version.startsWith("yv-") ? 0 : undefined,
+    gcTime: version.startsWith("yv-") ? 0 : undefined,
+    refetchOnMount: version.startsWith("yv-") ? "always" : true,
   });
   const current = passage.data?.data;
   const currentBook = current?.book.id ?? (reference ? "GEN" : requestedBook);
@@ -192,6 +204,11 @@ export function BibleReader() {
             </select>
           </label>
         </div>
+        {translations.data?.warning && (
+          <p role="status" className="text-sm text-muted">
+            {translations.data.warning}
+          </p>
+        )}
         {translations.isError && (
           <ErrorState
             error={translations.error}
@@ -223,8 +240,10 @@ export function BibleReader() {
           </button>
         </form>
         <p className="text-xs text-muted leading-relaxed">
-          ASV and YLT are public-domain editions. Use one chapter or a verse
-          range within it; navigate between chapters below.
+          ASV and YLT are public-domain editions. Other editions appear when
+          available through our YouVersion licenses and require a connection.
+          Use one chapter or a verse range within it; navigate between chapters
+          below.
         </p>
       </section>
       {passage.isPending ? (
@@ -294,26 +313,30 @@ export function BibleReader() {
                   />
                 </label>
               </header>
-              <div
-                className="bible-text font-serif text-reading"
-                style={{ fontSize }}
-              >
-                {current.verses.map((v) => (
-                  <p key={v.number} className="mb-5" data-verse={v.number}>
-                    <sup
-                      className="text-accent font-sans text-[11px] font-semibold mr-2"
-                      aria-label={`Verse ${v.number}`}
-                    >
-                      {v.number}
-                    </sup>
-                    {v.text || (
-                      <span className="font-sans italic text-sm text-muted">
-                        {v.note}
-                      </span>
-                    )}
-                  </p>
-                ))}
-              </div>
+              {current.display ? (
+                <YouVersionText display={current.display} fontSize={fontSize} />
+              ) : (
+                <div
+                  className="bible-text font-serif text-reading"
+                  style={{ fontSize }}
+                >
+                  {current.verses.map((v) => (
+                    <p key={v.number} className="mb-5" data-verse={v.number}>
+                      <sup
+                        className="text-accent font-sans text-[11px] font-semibold mr-2"
+                        aria-label={`Verse ${v.number}`}
+                      >
+                        {v.number}
+                      </sup>
+                      {v.text || (
+                        <span className="font-sans italic text-sm text-muted">
+                          {v.note}
+                        </span>
+                      )}
+                    </p>
+                  ))}
+                </div>
+              )}
               <footer className="mt-8 pt-5 border-t border-line text-xs text-muted space-y-2">
                 <p>{current.translation.attribution}</p>
                 <p>
