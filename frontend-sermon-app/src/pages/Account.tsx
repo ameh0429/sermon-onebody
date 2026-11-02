@@ -8,7 +8,6 @@ import {
   Leaf,
   LogOut,
   Mail,
-  ShieldCheck,
 } from "lucide-react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../auth";
@@ -188,13 +187,6 @@ export function AccountPage({ register = false }: { register?: boolean }) {
               {register ? "Sign in" : "Create an account"}
             </Link>
           </p>
-          <div className="mt-9 pt-6 border-t border-line flex gap-2 text-xs leading-relaxed text-muted">
-            <ShieldCheck size={17} className="shrink-0" />
-            <p>
-              Your session stays in this tab’s memory. Refreshing or closing the
-              app signs you out.
-            </p>
-          </div>
         </div>
       </section>
     </div>
@@ -304,11 +296,6 @@ export function ProfilePage() {
             )}
           </section>
           <section className="panel p-6">
-            <h2 className="font-semibold mb-2">Your session</h2>
-            <p className="text-sm text-muted mb-4 leading-relaxed">
-              You’ll need to sign in again after refreshing or closing the app.
-              Your completed lessons stay saved to your account.
-            </p>
             <button
               onClick={logout}
               className="text-link flex items-center gap-2"
