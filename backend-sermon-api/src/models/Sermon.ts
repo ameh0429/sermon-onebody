@@ -12,6 +12,8 @@ export class Sermon extends Model<InferAttributes<Sermon>, InferCreationAttribut
   declare content: CreationOptional<string | null>;
   declare audioUrl: CreationOptional<string | null>;
   declare videoUrl: CreationOptional<string | null>;
+  declare imageUrl: CreationOptional<string | null>;
+  declare imagePublicId: CreationOptional<string | null>;
   declare tags: CreationOptional<string[]>;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -29,6 +31,8 @@ Sermon.init(
     content: { type: DataTypes.TEXT, allowNull: true },
     audioUrl: { type: DataTypes.STRING(2048), allowNull: true },
     videoUrl: { type: DataTypes.STRING(2048), allowNull: true },
+    imageUrl: { type: DataTypes.STRING(2048), allowNull: true },
+    imagePublicId: { type: DataTypes.STRING(255), allowNull: true },
     tags: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false, defaultValue: [] },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,

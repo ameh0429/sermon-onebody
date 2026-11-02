@@ -246,3 +246,11 @@ node --test scripts/youversion-test.mjs
 A real App Key and network access to YouVersion are required to verify your account's version list and live passages.
 
 If the reader reports that YouVersion translations could not be loaded, run `npm run check:youversion` **from this backend directory**. It checks `.env`, the live licensed collection, and NIV/NLT/NKJV availability without printing the App Key or upstream response bodies. Backend logs now distinguish HTTP failures (`upstreamStatus`) from invalid response fields (`response_shape`). A terminal `next_page_token: null` is supported. Local `.env` changes are not synced into remote development workspaces.
+
+### Sermon card images
+
+Leaders/admins can choose a **Sermon image** while creating or editing a sermon. Images fill the top area of the library card using a centered cover crop; missing/unloadable images retain the decorative artwork. Use landscape artwork for the best fit. Images are public Cloudinary media using the existing backend `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` configuration.
+
+Apply `migrations/20261102_sermon_images.sql` before starting a backend with `DB_SYNC=false`. Development `DB_SYNC=true` adds the nullable fields on startup. Existing sermons need no image. `imageUrl` is returned by sermon lists/details; image bytes use `PUT /api/v1/sermons/:id/image` (multipart field `image`) and removal uses `DELETE` on the same route. Both require leader/admin permissions. Supported inputs: still JPEG/PNG/WebP, at most 5 MiB and 16 megapixels. The server strips metadata and preserves the source aspect ratio while resizing to at most 1600×1600. Changes invalidate the sermon list cache; replacement failures retain the previous image. Removing a sermon also cleans up its managed image.
+
+The form saves sermon text before uploading the image. If upload fails, it explains the partial save and retries against the same sermon ID, avoiding duplicate records. Mock-storage API checks: `npm run build && node --env-file=.env --test scripts/sermon-image-test.mjs`.

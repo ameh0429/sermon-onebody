@@ -233,12 +233,27 @@ export function SermonLibrary() {
   );
 }
 function SermonCard({ sermon, index }: { sermon: Sermon; index: number }) {
+  const [failedImage, setFailedImage] = useState<string | null>(null);
+  const showImage = !!sermon.imageUrl && sermon.imageUrl !== failedImage;
   return (
     <Link to={`/sermons/${sermon.id}`} className="sermon-card group">
       <div className={`sermon-art art-${index % 3}`} aria-hidden="true">
-        <div className="art-orb" />
-        <div className="art-hill" />
-        <span className="art-caption">{sermon.passage}</span>
+        {showImage ? (
+          <img
+            src={sermon.imageUrl!}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover"
+            onError={() => setFailedImage(sermon.imageUrl)}
+          />
+        ) : (
+          <>
+            <div className="art-orb" />
+            <div className="art-hill" />
+            <span className="art-caption">{sermon.passage}</span>
+          </>
+        )}
         <span className="art-play">
           {sermon.audioUrl || sermon.videoUrl ? (
             <Play size={18} fill="currentColor" />

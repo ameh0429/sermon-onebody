@@ -235,7 +235,9 @@ test("join a group, discussion and reply, reporting, member list, leave revokes 
     .fill("Off-topic test discussion");
   await report.getByRole("button", { name: "Send report" }).click();
   await page.getByRole("button", { name: "Members", exact: true }).click();
-  await expect(page.getByRole("main").getByText(member.name, { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("main").getByText(member.name, { exact: true }),
+  ).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
   expect(
     await page.evaluate(
@@ -530,4 +532,59 @@ test("unpublished bookmarks stay private and staff catalog scope is protected", 
   } finally {
     await saved.destroy();
   }
+});
+
+test("sermon image upload previews and fills the card, with artwork fallback for failed images", async ({
+  page,
+}) => {
+  const imageUrl = "https://images.example.test/sermon-cover.png";
+  let uploaded = false;
+  await page.route(imageUrl, (route) =>
+    route.fulfill({
+      path: "tests/fixtures/test-photo.png",
+      contentType: "image/png",
+    }),
+  );
+  await page.route(`**/api/v1/sermons/${sermon.id}/image`, async (route) => {
+    expect(route.request().method()).toBe("PUT");
+    expect(route.request().headers()["content-type"]).toContain(
+      "multipart/form-data",
+    );
+    uploaded = true;
+    await route.fulfill({
+      json: { status: "success", data: { ...sermon.toJSON(), imageUrl } },
+    });
+  });
+  await page.route("**/api/v1/sermons?*", async (route) => {
+    const response = await route.fetch();
+    const payload = await response.json();
+    if (uploaded)
+      payload.data = payload.data.map((s: any) =>
+        s.id === sermon.id ? { ...s, imageUrl } : s,
+      );
+    await route.fulfill({ response, json: payload });
+  });
+  await signIn(page, pastor);
+  await spa(page, `/dashboard/sermons/${sermon.id}/edit`);
+  await page
+    .getByLabel("Sermon image", { exact: true })
+    .setInputFiles("tests/fixtures/test-photo.png");
+  await expect(page.getByAltText("Sermon image preview")).toBeVisible();
+  await page.getByRole("button", { name: "Save sermon", exact: true }).click();
+  await expect(page).toHaveURL(/\/dashboard\/sermons$/);
+  expect(uploaded).toBe(true);
+  await spa(page, "/sermons");
+  const card = page
+    .locator(".sermon-card")
+    .filter({
+      has: page.getByRole("heading", { name: sermon.title, exact: true }),
+    });
+  const image = card.locator(".sermon-art img");
+  await expect(image).toHaveAttribute("src", imageUrl);
+  await expect(image).toHaveCSS("object-fit", "cover");
+  await expect(card.locator(".art-orb")).toHaveCount(0);
+  await image.evaluate((img: HTMLImageElement) =>
+    img.dispatchEvent(new Event("error")),
+  );
+  await expect(card.locator(".art-orb")).toBeVisible();
 });

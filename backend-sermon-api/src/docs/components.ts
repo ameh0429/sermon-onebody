@@ -56,6 +56,7 @@ export const schemas = {
       sermonDate: { type: 'string', format: 'date', example: '2026-09-27' },
       summary: { type: 'string', nullable: true, example: 'Grace is a gift, not a wage.' },
       content: { type: 'string', nullable: true, description: 'Full text. Omitted from list responses.', example: 'Full sermon text…' },
+      imageUrl: { type: 'string', format: 'uri', nullable: true, readOnly: true },
       audioUrl: { type: 'string', format: 'uri', nullable: true, example: 'https://cdn.example.com/sermons/walking-in-grace.mp3' },
       videoUrl: { type: 'string', format: 'uri', nullable: true, example: null },
       tags: { type: 'array', items: { type: 'string' }, example: ['grace', 'salvation'] },

@@ -1,3 +1,5 @@
+import { sequelize } from '../config/database.js';
+import { cleanupSermonImage } from '../services/sermonImageStorage.js';
 import type { Request, Response } from 'express';
 import { Op, type WhereOptions } from 'sequelize';
 import { Sermon } from '../models/index.js';
@@ -81,8 +83,14 @@ export async function updateSermon(req: Request, res: Response) {
 }
 
 export async function deleteSermon(req: Request, res: Response) {
-  const deleted = await Sermon.destroy({ where: { id: param(req, 'id') } });
-  if (!deleted) throw AppError.notFound('Sermon not found');
+  const imageId = await sequelize.transaction(async transaction => {
+    const sermon = await Sermon.findByPk(param(req, 'id'), { transaction, lock: transaction.LOCK.UPDATE });
+    if (!sermon) throw AppError.notFound('Sermon not found');
+    const previous = sermon.imagePublicId;
+    await sermon.destroy({ transaction });
+    return previous;
+  });
+  await cleanupSermonImage(imageId);
   invalidateSermonCache();
   res.status(204).send();
 }

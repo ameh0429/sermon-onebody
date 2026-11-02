@@ -1,4 +1,5 @@
 import express from 'express';
+import { createSermonImageRouter } from './routes/sermonImage.routes.js';
 import { createAvatarRouter } from './routes/avatar.routes.js';
 import type { AvatarStorage } from './services/avatarStorage.js';
 import cors from 'cors';
@@ -13,7 +14,7 @@ import { globalLimiter } from './middleware/rateLimit.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { sanitizeBody } from './middleware/sanitize.js';
 
-export function createApp(options: { avatarStorage?: AvatarStorage } = {}) {
+export function createApp(options: { avatarStorage?: AvatarStorage; sermonImageStorage?: AvatarStorage } = {}) {
   const app = express();
 
   app.disable('x-powered-by');
@@ -46,6 +47,7 @@ export function createApp(options: { avatarStorage?: AvatarStorage } = {}) {
   });
 
   app.use('/api/v1/users/me/avatar', createAvatarRouter(options.avatarStorage));
+  app.use('/api/v1/sermons', createSermonImageRouter(options.sermonImageStorage));
   app.use('/api/v1', apiRouter);
 
   app.use(notFoundHandler);

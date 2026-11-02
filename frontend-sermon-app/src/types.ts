@@ -17,6 +17,7 @@ export interface Sermon {
   content: string | null;
   audioUrl: string | null;
   videoUrl: string | null;
+  imageUrl: string | null;
   tags: string[];
   status: string;
 }
