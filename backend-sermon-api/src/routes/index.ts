@@ -1,3 +1,4 @@
+import { notificationRouter } from './notification.routes.js';
 import { bibleRouter } from './bible.routes.js';
 import { adminRouter } from './admin.routes.js';
 import { studyPlanRouter } from './studyPlan.routes.js';
@@ -11,6 +12,7 @@ import { discussionRouter } from './discussion.routes.js';
 
 export const apiRouter = Router();
 
+apiRouter.use('/notifications', notificationRouter);
 apiRouter.use('/bible', bibleRouter);
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/users', usersRouter);

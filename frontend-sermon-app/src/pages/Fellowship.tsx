@@ -348,15 +348,18 @@ function Threads({
 }) {
   const [page, setPage] = useState(1);
   const [sermonId, setSermonId] = useState("");
+  const [searchParams,setSearchParams] = useSearchParams();
+  const threadId = flagged ? null : searchParams.get("thread");
   const query = useQuery({
-    queryKey: ["threads", group.id, flagged, page, sermonId],
+    queryKey: ["threads", group.id, flagged, page, sermonId, threadId],
     queryFn: () =>
       api<Post[]>(
-        `/groups/${group.id}/posts${flagged ? "/flagged" : ""}?page=${page}&limit=10${sermonId ? `&sermonId=${sermonId}` : ""}`,
+        `/groups/${group.id}/posts${flagged ? "/flagged" : ""}?page=${page}&limit=10${sermonId ? `&sermonId=${sermonId}` : ""}${threadId ? `&threadId=${encodeURIComponent(threadId)}` : ""}`,
       ),
   });
   return (
     <>
+      {threadId && <button className="text-link text-sm mb-5" onClick={()=>{const next=new URLSearchParams(searchParams);next.delete("thread");setSearchParams(next);setPage(1);}}>Show all discussions</button>}
       {!flagged && (
         <>
           <details className="panel p-4 mb-5">

@@ -62,3 +62,16 @@ SermonEngagement.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 Sermon.hasMany(SermonEngagement, { foreignKey: 'sermonId', as: 'engagements', onDelete: 'CASCADE' });
 SermonEngagement.belongsTo(Sermon, { foreignKey: 'sermonId', as: 'sermon' });
 export { SermonEngagement };
+
+import { Notification, NotificationPreference } from './Notification.js';
+User.hasMany(Notification,{foreignKey:'userId',onDelete:'CASCADE'});
+Notification.belongsTo(User,{foreignKey:'userId'});
+User.hasOne(NotificationPreference,{foreignKey:'userId',onDelete:'CASCADE'});
+NotificationPreference.belongsTo(User,{foreignKey:'userId'});
+Sermon.hasMany(Notification,{foreignKey:'sermonId',onDelete:'CASCADE'});
+Notification.belongsTo(Sermon,{foreignKey:'sermonId'});
+StudyPlan.hasMany(Notification,{foreignKey:'studyPlanId',onDelete:'CASCADE'});
+Notification.belongsTo(StudyPlan,{foreignKey:'studyPlanId'});
+DiscussionPost.hasMany(Notification,{foreignKey:'postId',onDelete:'CASCADE'});
+Notification.belongsTo(DiscussionPost,{foreignKey:'postId'});
+export { Notification, NotificationPreference };

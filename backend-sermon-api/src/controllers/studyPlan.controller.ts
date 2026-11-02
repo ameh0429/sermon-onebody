@@ -1,3 +1,4 @@
+import { notifyPlan } from '../services/notifications.js';
 import type { Request, Response } from 'express';
 import { Op } from 'sequelize';
 import { sequelize } from '../config/database.js';
@@ -23,6 +24,7 @@ export async function createStudyPlan(req: Request, res: Response) {
   const result = await sequelize.transaction(async transaction => {
     const plan = await StudyPlan.create(body, { transaction });
     const lessons = await DailyLesson.bulkCreate(dailyLessons.map(lesson => ({ ...lesson, studyPlanId: plan.id })), { transaction });
+    await notifyPlan(plan.id,currentUser(req).id,transaction);
     return { ...plan.toJSON(), dailyLessons: lessons.sort((a, b) => a.day - b.day) };
   });
   res.status(201).json({ status: 'success', data: result });
@@ -30,7 +32,10 @@ export async function createStudyPlan(req: Request, res: Response) {
 export async function attachStudyPlan(req: Request, res: Response) {
   const plan = await requirePlan(param(req, 'studyPlanId'), req);
   await requireSermon(req.body.sermonId);
-  await plan.update({ sermonId: req.body.sermonId });
+  await sequelize.transaction(async transaction => {
+    await plan.update({ sermonId:req.body.sermonId },{transaction});
+    await notifyPlan(plan.id,currentUser(req).id,transaction);
+  });
   res.json({ status: 'success', data: plan });
 }
 export async function getStudyPlan(req: Request, res: Response) {

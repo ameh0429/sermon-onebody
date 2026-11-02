@@ -1,3 +1,4 @@
+import { notifySermon } from '../services/notifications.js';
 import { sequelize } from '../config/database.js';
 import { cleanupSermonImage } from '../services/sermonImageStorage.js';
 import type { Request, Response } from 'express';
@@ -69,15 +70,24 @@ export async function getSermon(req: Request, res: Response) {
 }
 
 export async function createSermon(req: Request, res: Response) {
-  const sermon = await Sermon.create(req.body);
+  const sermon = await sequelize.transaction(async transaction => {
+    const created = await Sermon.create(req.body,{transaction});
+    if(created.status==='published') await notifySermon(created.id,currentUser(req).id,transaction);
+    return created;
+  });
   invalidateSermonCache();
   res.status(201).json({ status: 'success', data: sermon });
 }
 
 export async function updateSermon(req: Request, res: Response) {
-  const sermon = await Sermon.findByPk(param(req, 'id'));
-  if (!sermon) throw AppError.notFound('Sermon not found');
-  await sermon.update(req.body);
+  const sermon = await sequelize.transaction(async transaction => {
+    const record = await Sermon.findByPk(param(req,'id'),{transaction,lock:transaction.LOCK.UPDATE});
+    if(!record) throw AppError.notFound('Sermon not found');
+    const previous=record.status;
+    await record.update(req.body,{transaction});
+    if(previous!=='published' && record.status==='published') await notifySermon(record.id,currentUser(req).id,transaction);
+    return record;
+  });
   invalidateSermonCache();
   res.json({ status: 'success', data: sermon });
 }

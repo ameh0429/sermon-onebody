@@ -28,6 +28,7 @@ export const swaggerSpec = swaggerJSDoc({
     },
     servers: [{ url: '/api/v1', description: 'Current server' }],
     tags: [
+      { name: 'Notifications', description: 'Recipient-owned in-app updates and preferences' },
       { name: 'Bible', description: 'Public-domain ASV and YLT Bible reading, navigation and passage references' },
       { name: 'Admin', description: 'Pastor/leader content management and analytics; admin-only account management' },
       { name: 'StudyPlans', description: 'Weekly study plans attached to sermons' },

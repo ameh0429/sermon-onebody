@@ -88,7 +88,7 @@ export const postBody = z.object({
   sermonId: uuid.optional(),
   parentPostId: uuid.optional(),
 });
-export const postListQuery = z.object({ ...pagination, sermonId: uuid.optional() });
+export const postListQuery = z.object({ ...pagination, sermonId: uuid.optional(), threadId: uuid.optional() });
 export const sermonPostsQuery = z.object({ ...pagination, groupId: uuid.optional() });
 export const flagBody = z.object({ reason: text(500) });
 

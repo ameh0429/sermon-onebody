@@ -1,3 +1,5 @@
+import { sequelize } from '../config/database.js';
+import { notifyReply } from '../services/notifications.js';
 import type { Request, Response } from 'express';
 import { Op, type IncludeOptions, type WhereOptions } from 'sequelize';
 import { DiscussionPost, GroupMember, Sermon, User } from '../models/index.js';
@@ -42,21 +44,27 @@ export async function createPost(req: Request, res: Response) {
   const group = await requireGroupAccess(groupId, user);
 
   let resolvedSermonId = sermonId ?? null;
+  let replyRecipient: string | null = null;
   if (parentPostId) {
     const parent = await DiscussionPost.findOne({ where: { id: parentPostId, groupId: group.id } });
     if (!parent) throw AppError.notFound('Parent post not found in this group');
     if (parent.parentPostId) throw AppError.badRequest('Replies can only be added to top-level posts');
+    replyRecipient = parent.authorId;
     resolvedSermonId = parent.sermonId; // replies stay on the sermon of the thread they belong to
   } else if (resolvedSermonId && !(await Sermon.findByPk(resolvedSermonId, { attributes: ['id'] }))) {
     throw AppError.notFound('Sermon not found');
   }
 
-  const post = await DiscussionPost.create({
+  const post = await sequelize.transaction(async transaction => {
+    const created = await DiscussionPost.create({
     groupId: group.id,
     authorId: user.id,
     content,
     sermonId: resolvedSermonId,
     parentPostId: parentPostId ?? null,
+    },{transaction});
+    if(replyRecipient) await notifyReply(created.id,replyRecipient,user.id,transaction);
+    return created;
   });
   res.status(201).json({ status: 'success', data: post });
 }
@@ -64,10 +72,10 @@ export async function createPost(req: Request, res: Response) {
 export async function listGroupPosts(req: Request, res: Response) {
   const user = currentUser(req);
   const groupId = param(req, 'groupId');
-  const { page, limit, sermonId } = req.query as unknown as { page: number; limit: number; sermonId?: string };
+  const { page, limit, sermonId, threadId } = req.query as unknown as { page: number; limit: number; sermonId?: string; threadId?: string };
   await requireGroupAccess(groupId, user);
 
-  const result = await fetchThreads({ groupId, parentPostId: null, ...(sermonId ? { sermonId } : {}) }, page, limit);
+  const result = await fetchThreads({ groupId, parentPostId: null, ...(threadId ? { id:threadId } : {}), ...(sermonId ? { sermonId } : {}) }, page, limit);
   res.json({ status: 'success', ...result });
 }
 
