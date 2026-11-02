@@ -64,6 +64,14 @@ export function AccountPage({ register = false }: { register?: boolean }) {
             Make room for the Word. Discover a message, find a fresh
             perspective, and carry it into your week.
           </p>
+          <img
+            src="https://res.cloudinary.com/dxpopimi3/image/upload/v1793655639/ScreenShot_11_2_2026_10_04_26_PM_y3z02k.png"
+            alt=""
+            className="mt-6 block h-auto max-h-40 w-full rounded-xl object-contain object-left"
+            loading="lazy"
+            decoding="async"
+            onError={event => { event.currentTarget.style.display = "none"; }}
+          />
           <div className="auth-illustration" aria-hidden="true">
             <div className="sun" />
             <div className="hill hill-one" />
