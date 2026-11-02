@@ -168,6 +168,12 @@ test("book boundaries, mobile/tablet layouts, More navigation and dark mode", as
   page,
 }) => {
   await login(page);
+  await page.route("**/api/v1/bible/translations", async route => {
+    const response = await route.fetch();
+    const payload = await response.json();
+    payload.data.push({ id:"yv-9876", name:"Catholic Public Domain Version — English complete edition with a long translation title", abbreviation:"TEST" });
+    await route.fulfill({response,json:payload});
+  });
   await spa(page, "/bible?book=GEN&chapter=50");
   await expect(
     page.getByRole("heading", { name: "Genesis 50", exact: true }),
@@ -185,13 +191,19 @@ test("book boundaries, mobile/tablet layouts, More navigation and dark mode", as
     page.getByRole("button", { name: "Next chapter" }),
   ).toBeDisabled();
   await page.emulateMedia({ colorScheme: "dark" });
-  for (const width of [390, 768, 1440]) {
+  for (const width of [320, 390, 768, 1440]) {
     await page.setViewportSize({ width, height: 1000 });
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,
       ),
     ).toBe(true);
+    const panel = await page.getByRole("region", {name:"Bible navigation"}).boundingBox();
+    for (const label of ["Bible translation", "Bible book", "Bible chapter"]) {
+      const box = await page.getByLabel(label, {exact:true}).boundingBox();
+      expect(box!.x).toBeGreaterThanOrEqual(panel!.x + 19);
+      expect(box!.x + box!.width).toBeLessThanOrEqual(panel!.x + panel!.width - 19);
+    }
     await page.screenshot({
       path: `test-results/bible-${width}.png`,
       fullPage: true,

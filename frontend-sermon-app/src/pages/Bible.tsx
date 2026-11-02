@@ -146,10 +146,11 @@ export function BibleReader() {
         className="panel p-5 sm:p-6 mb-6 space-y-5"
         aria-label="Bible navigation"
       >
-        <div className="grid gap-4 sm:grid-cols-[1.5fr_1fr_.65fr]">
-          <label className="field">
+        <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,.65fr)]">
+          <label className="field min-w-0">
             Translation
             <select
+              className="w-full min-w-0"
               aria-label="Bible translation"
               value={version}
               onChange={(e) => switchVersion(e.target.value)}
@@ -165,9 +166,10 @@ export function BibleReader() {
               ))}
             </select>
           </label>
-          <label className="field">
+          <label className="field min-w-0">
             Book
             <select
+              className="w-full min-w-0"
               aria-label="Bible book"
               value={currentBook}
               onChange={(e) => navigate({ bookId: e.target.value, chapter: 1 })}
@@ -183,9 +185,10 @@ export function BibleReader() {
               ))}
             </select>
           </label>
-          <label className="field">
+          <label className="field min-w-0">
             Chapter
             <select
+              className="w-full min-w-0"
               aria-label="Bible chapter"
               value={currentChapter}
               onChange={(e) =>
