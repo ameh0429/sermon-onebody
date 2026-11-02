@@ -58,9 +58,7 @@ export function AccountPage({ register = false }: { register?: boolean }) {
         <div className="auth-story-content">
           <p className="eyebrow text-peach!">FAITH FOR THE EVERYDAY</p>
           <h1 className="font-serif text-5xl leading-tight lg:text-6xl">
-            A deeper faith.
-            <br />
-            One day at a time.
+            LOVE: HEARTS, EYES, HANDS, FEET.
           </h1>
           <p className="mt-6 max-w-sm text-white/85 leading-relaxed">
             Make room for the Word. Discover a message, find a fresh
@@ -78,7 +76,7 @@ export function AccountPage({ register = false }: { register?: boolean }) {
           </div>
         </div>
         <p className="text-xs text-white/80">
-          LOVE IS CHANGING HEARTS, LIGHTING EYES, MOVING HANDS AND LEADING FEET.
+          Love is Changing our Hearts, Lighting our Eyes, Moving our Hands and Leading our Feet.
         </p>
       </section>
       <section className="auth-form-section">
