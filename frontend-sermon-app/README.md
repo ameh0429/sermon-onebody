@@ -38,9 +38,9 @@ The frontend requires the backend changes in this branch, including `GET /api/v1
 
 ## Authentication and privacy
 
-Bearer tokens stay **only in memory**. Refreshing, closing the app, or applying an app update signs the user out. Tokens are not persisted to localStorage, sessionStorage, IndexedDB, service-worker caches, or URLs. A 401 clears the session and query cache; explicit sign-out also clears both. Profile refresh gets current account data from `/users/me`.
+Bearer tokens stay in memory and in the current browser tab's `sessionStorage` under `onebody.session`. Refreshing or applying an app update restores that token and validates it against `/users/me` before rendering protected routes, preserving the current URL. No user profile or password is persisted. Tokens are not written to localStorage, IndexedDB, service-worker caches, or URLs. Explicit sign-out and a rejected/expired session clear both token storage and query caches. A temporary network/server failure keeps the stored session and shows retry/sign-in options instead of redirecting immediately. When browser storage is blocked, login still works in memory, but refresh requires signing in again.
 
-Use HTTPS in production. A persistent-login feature should use a separately designed backend session/refresh flow with secure HttpOnly cookies and appropriate CSRF protection, rather than storing long-lived bearer tokens in browser storage. Do not put database/JWT/admin secrets in frontend `.env` files: `VITE_*` values are public build-time configuration.
+Use HTTPS in production. This change provides refresh continuity within a browser tab, without extending the backend JWT lifetime (one day by default). Session storage is readable by page JavaScript; durable cross-session login would warrant a backend session/refresh flow using HttpOnly cookies and CSRF protection.
 
 ## API address and deployment
 
@@ -96,13 +96,13 @@ Users can choose **Light**, **Dark**, or **System** only under their profile. Si
 
 `public/theme.js` applies the saved/system preference before React and styles load, avoiding a flash of the wrong theme. `src/theme.tsx` provides the shared React control and handles system/storage changes. Semantic Tailwind color tokens in `styles.css` cover surfaces, text, navigation, forms, reading content, dashboard panels and feedback. `color-scheme` also adapts native controls, and the browser theme-color follows the resolved appearance. The PWA includes the bootstrap script in its app-shell cache.
 
-The theme browser tests cover device defaults/live changes, explicit overrides, reload persistence, tab synchronization, invalid/blocked storage, and initialization before React. Existing member and dashboard workflows also exercise theme switching. Only the theme preference is stored locally; authentication tokens and private content remain in memory/server storage as described above.
+The theme browser tests cover device defaults/live changes, explicit overrides, reload persistence, tab synchronization, invalid/blocked storage, and initialization before React. Existing member and dashboard workflows also exercise theme switching. Only the theme preference is stored locally; authentication uses tab sessionStorage and private content remains in memory/server storage as described above.
 
 ## Profile photos
 
 The Profile screen now includes photo selection, a square preview, explicit upload, cancel, replacement and confirmed removal. Supported inputs are still JPEG/PNG/WebP up to 5 MiB. The backend validates and processes the actual image; metadata is removed and the final photo is 400×400 JPEG. Existing photos remain unchanged if an upload fails. Broken or missing images fall back to the user's initial. A shared Avatar component updates the profile, sidebar and mobile header after a successful response, without signing in again.
 
-Photos are public Cloudinary URLs. The image selection preview uses a temporary object URL that is released when selection changes or the editor closes; original files and previews are not stored in browser storage or service-worker caches. Uploads require connectivity. Tokens continue to stay only in memory, and multipart uploads use the existing bearer-authenticated API client without overriding the browser's multipart boundary.
+Photos are public Cloudinary URLs. The image selection preview uses a temporary object URL that is released when selection changes or the editor closes; original files and previews are not stored in browser storage or service-worker caches. Uploads require connectivity. Tokens use the tab sessionStorage persistence described above, and multipart uploads use the existing bearer-authenticated API client without overriding the browser's multipart boundary.
 
 Backend setup is required: apply `migrations/20261031_profile_photos.sql` and set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` securely on the **backend only**. See the backend README. Missing configuration produces an explanatory error while leaving the previous photo intact. There are no Cloudinary secrets or direct unsigned upload presets in the frontend.
 

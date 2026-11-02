@@ -18,7 +18,9 @@ async function openProfile(page: Page) {
       body: JSON.stringify(
         route.request().url().endsWith("/auth/login")
           ? { status: "success", data: { user, token: "theme-test-token" } }
-          : {
+          : route.request().url().endsWith("/users/me")
+            ? {status:"success",data:user}
+            : {
               status: "success",
               data: [],
               meta: { page: 1, limit: 9, total: 0, totalPages: 1 },
@@ -26,7 +28,10 @@ async function openProfile(page: Page) {
       ),
     }),
   );
-  await page.goto("/login");
+  await page.goto("/profile");
+  const profileHeading = page.getByRole("heading",{name:"A little about you."});
+  await expect(profileHeading.or(page.getByRole("button",{name:"Sign in",exact:true}))).toBeVisible();
+  if (await profileHeading.isVisible()) return;
   await page.getByLabel("Email address").fill(user.email);
   await page.getByLabel("Password", { exact: true }).fill("ThemeTest123!");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
@@ -79,8 +84,7 @@ test("explicit choice persists, overrides device setting and synchronizes tabs",
   await page.getByRole("button", { name: "Dark", exact: true }).click();
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await expect(page.getByRole("group", { name: "Color theme" })).toHaveCount(0);
-  await openProfile(page);
+  await expect(page.getByRole("group", { name: "Color theme" })).toHaveCount(1);
   await expect(
     page.getByRole("button", { name: "Dark", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
