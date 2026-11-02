@@ -184,7 +184,7 @@ test("member journey: login, filters, media, lessons, saved progress and profile
   ).toBeVisible();
   expect(errors).toEqual([]);
 });
-test("registration, responsive layouts and in-memory session protection", async ({
+test("registration, responsive layouts, session restoration and logout", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -241,6 +241,14 @@ test("registration, responsive layouts and in-memory session protection", async 
       .click();
   }
   expect(await page.evaluate(() => Object.keys(localStorage))).toEqual([]);
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "A word for your season." }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Sign out", exact: true }).click();
+  expect(
+    await page.evaluate(() => sessionStorage.getItem("onebody.session")),
+  ).toBeNull();
   await page.reload();
   await expect(
     page.getByRole("heading", { name: "Good to see you." }),
@@ -437,4 +445,112 @@ test("native video playback and unavailable audio feedback", async ({
   } finally {
     await sermon.update({ videoUrl: previous });
   }
+});
+
+test("banner video supports muted playback, pause, reduced motion and failure fallback", async ({
+  page,
+}) => {
+  const source =
+    "https://res.cloudinary.com/dxpopimi3/video/upload/v1793627496/VID-20240923-WA0008_caqs4a.mp4";
+  await page.route(source, (route) =>
+    route.fulfill({
+      path: "tests/fixtures/sermon.webm",
+      contentType: "video/webm",
+    }),
+  );
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await signIn(page);
+  const video = page.locator(".library-hero video");
+  await expect(video).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Pause banner video", exact: true }),
+  ).toBeVisible();
+  expect(
+    await video.evaluate(
+      (v: HTMLVideoElement) => v.muted && v.loop && v.playsInline,
+    ),
+  ).toBe(true);
+  await page
+    .getByRole("button", { name: "Pause banner video", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Play banner video", exact: true }),
+  ).toBeVisible();
+  expect(await video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true);
+  await page
+    .getByRole("button", { name: "Play banner video", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Pause banner video", exact: true }),
+  ).toBeVisible();
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    await expect(
+      page.getByRole("link", { name: "Explore weekly growth", exact: true }),
+    ).toBeVisible();
+  }
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(video).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "Let the Word take root." }),
+  ).toBeVisible();
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await expect(video).toBeVisible();
+  await video.evaluate((v) => v.dispatchEvent(new Event("error")));
+  await expect(video).toHaveCount(0);
+  await expect(
+    page.getByRole("link", { name: "Explore weekly growth", exact: true }),
+  ).toBeVisible();
+});
+
+test("refresh preserves deep links, retries network failures and clears rejected sessions", async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto("/bible?reference=John%203%3A16");
+  await expect(
+    page.getByRole("heading", { name: "John 3:16", exact: true }),
+  ).toBeVisible();
+  const location = page.url();
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "John 3:16", exact: true }),
+  ).toBeVisible();
+  expect(page.url()).toBe(location);
+  await page.route("**/api/v1/users/me", (route) =>
+    route.fulfill({
+      status: 503,
+      json: { message: "Temporarily unavailable" },
+    }),
+  );
+  await page.reload();
+  await expect(
+    page.getByText(
+      "We couldn’t restore your session. Check your connection and try again.",
+    ),
+  ).toBeVisible();
+  expect(page.url()).toBe(location);
+  expect(
+    await page.evaluate(() => !!sessionStorage.getItem("onebody.session")),
+  ).toBe(true);
+  await page.unroute("**/api/v1/users/me");
+  await page.getByRole("button", { name: "Try again", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "John 3:16", exact: true }),
+  ).toBeVisible();
+  await page.evaluate(() =>
+    sessionStorage.setItem("onebody.session", "invalid-token"),
+  );
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "Good to see you." }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(() => sessionStorage.getItem("onebody.session")),
+  ).toBeNull();
 });

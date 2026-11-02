@@ -1,3 +1,4 @@
+import { NotificationBell, NotificationsPage } from "./pages/Notifications";
 import { Avatar } from "./Avatar";
 import { useEffect } from "react";
 import {
@@ -158,15 +159,17 @@ function Layout() {
           <Link to="/sermons" aria-label="OneBody home">
             <Brand />
           </Link>
+          <div className="flex items-center gap-3"><NotificationBell />
           <Link to="/profile" aria-label="My profile">
             <Avatar user={user} />
-          </Link>
+          </Link></div>
         </header>
         <header className="desktop-header">
           <span>A place to listen, reflect, and grow.</span>
           <span className="flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-secondary" />
             GROW AT YOUR OWN PACE
+            <NotificationBell />
           </span>
         </header>
         <PwaStatus />
@@ -214,6 +217,7 @@ export default function App() {
         <Route path="bible" element={<BibleReader />} />
         <Route path="more" element={<MorePage />} />
         <Route path="sermons" element={<SermonLibrary />} />
+        <Route path="notifications" element={<NotificationsPage />} />
         <Route path="sermons/:sermonId" element={<SermonDetail />} />
         <Route path="growth" element={<GrowthLibrary />} />
         <Route path="growth/:planId" element={<StudyPlanPage />} />
@@ -260,6 +264,7 @@ function MorePage() {
       <h1 className="page-title mb-6">Your OneBody space.</h1>
       <nav className="grid gap-4 sm:grid-cols-2" aria-label="More navigation">
         {[
+          { to: "/notifications", label: "Notifications" },
           { to: "/personal", label: "Bookmarks" },
           { to: "/personal/journal", label: "Private journal" },
           { to: "/profile", label: "My profile" },

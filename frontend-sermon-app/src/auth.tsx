@@ -7,8 +7,9 @@ import {
   type ReactNode,
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { api, send, session } from "./api";
+import { ApiError, api, send, session } from "./api";
 import type { Envelope, User } from "./types";
+import { ErrorState, Loading } from "./ui";
 interface Auth {
   user: User | null;
   expired: boolean;
@@ -24,12 +25,17 @@ const AuthContext = createContext<Auth | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [expired, setExpired] = useState(false);
+  const [restoring, setRestoring] = useState(() => session.hasToken());
+  const [restoreError, setRestoreError] = useState<unknown>(null);
+  const [restoreAttempt, setRestoreAttempt] = useState(0);
   const client = useQueryClient();
   const generation = useRef(0);
   function logout() {
     generation.current++;
     session.set(null);
     setUser(null);
+    setRestoring(false);
+    setRestoreError(null);
     client.clear();
   }
   useEffect(() => {
@@ -38,10 +44,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session.set(null);
       setUser(null);
       setExpired(true);
+      setRestoring(false);
+      setRestoreError(null);
       client.clear();
     });
     return () => session.onExpired(() => {});
   }, [client]);
+  useEffect(() => {
+    if (!session.hasToken()) {
+      setRestoring(false);
+      return;
+    }
+    let active = true;
+    const current = generation.current;
+    setRestoring(true);
+    setRestoreError(null);
+    void api<User>("/users/me", { cache: "no-store" })
+      .then(({ data }) => {
+        if (active && current === generation.current) setUser(data);
+      })
+      .catch((error) => {
+        if (!active || current !== generation.current) return;
+        if (error instanceof ApiError && error.status === 401) {
+          session.set(null);
+          setUser(null);
+          setExpired(true);
+        } else setRestoreError(error);
+      })
+      .finally(() => {
+        if (active && current === generation.current) setRestoring(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [restoreAttempt]);
   async function login(
     body: { email: string; password: string; name?: string },
     register = false,
@@ -73,7 +109,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{ user, expired, login, logout, refresh, updateAccount }}
     >
-      {children}
+      {restoring ? (
+        <Loading label="Restoring your session…" />
+      ) : restoreError ? (
+        <main className="max-w-md mx-auto p-6 space-y-4">
+          <p>
+            We couldn’t restore your session. Check your connection and try
+            again.
+          </p>
+          <ErrorState
+            error={restoreError}
+            retry={() => setRestoreAttempt((value) => value + 1)}
+          />
+          <button className="btn-secondary" onClick={logout}>
+            Return to sign in
+          </button>
+        </main>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 }

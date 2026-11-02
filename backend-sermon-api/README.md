@@ -254,3 +254,28 @@ Leaders/admins can choose a **Sermon image** while creating or editing a sermon.
 Apply `migrations/20261102_sermon_images.sql` before starting a backend with `DB_SYNC=false`. Development `DB_SYNC=true` adds the nullable fields on startup. Existing sermons need no image. `imageUrl` is returned by sermon lists/details; image bytes use `PUT /api/v1/sermons/:id/image` (multipart field `image`) and removal uses `DELETE` on the same route. Both require leader/admin permissions. Supported inputs: still JPEG/PNG/WebP, at most 5 MiB and 16 megapixels. The server strips metadata and preserves the source aspect ratio while resizing to at most 1600×1600. Changes invalidate the sermon list cache; replacement failures retain the previous image. Removing a sermon also cleans up its managed image.
 
 The form saves sermon text before uploading the image. If upload fails, it explains the partial save and retries against the same sermon ID, avoiding duplicate records. Mock-storage API checks: `npm run build && node --env-file=.env --test scripts/sermon-image-test.mjs`.
+
+## In-app notifications
+
+Apply `migrations/20261102_notifications.sql` before starting with `DB_SYNC=false`. Development `DB_SYNC=true` creates the two new models on startup. No external service credentials or browser notification permission are needed. There is no historical backfill: notifications start with new actions after this update.
+
+- Published sermons notify active users other than the publisher. Draft creation and ordinary edits do not notify; recipient/event uniqueness prevents repeat alerts on republication.
+- Study plans notify when available through a published sermon: creation, attachment, or publication of their previously draft sermon. Unattached/private plans do not notify.
+- Replies notify the original top-level post author, excluding self-replies and recipients who no longer have group access. Reply links filter directly to the original thread, even if it has moved off the first page. Journal entries do not generate notifications.
+
+All three categories default to enabled. Per-user preferences affect future delivery, not existing inbox items. Notifications and content changes commit in the same PostgreSQL transaction, and unique `(user_id,event_key)` pairs prevent duplicate delivery. For the current application size, publication uses one database `INSERT … SELECT` to fan out to eligible recipients. The inbox computes current titles and access rather than retaining private discussion excerpts. Group departure, content unpublication, and deletion remove inaccessible items from lists/counts; foreign keys clean up deleted sources/accounts.
+
+Authenticated, recipient-owned endpoints (all `private, no-store`):
+
+| Endpoint | Purpose |
+|---|---|
+| `GET /api/v1/notifications?page=1&limit=20&unread=false` | Paginated inbox with current title, target, kind, readAt, createdAt |
+| `GET /api/v1/notifications/unread-count` | Accessible unread count |
+| `PATCH /api/v1/notifications/:id/read` | Mark one read; another recipient's ID returns 404 |
+| `PATCH /api/v1/notifications/read-all` | Mark all accessible items read |
+| `GET /api/v1/notifications/preferences` | Current preferences |
+| `PATCH /api/v1/notifications/preferences` | Full boolean object `{sermons, plans, replies}` |
+
+List pagination and read operations always re-check ownership and current source access. No public endpoint accepts notification recipients or arbitrary destination URLs. `GET /groups/:groupId/posts?threadId=<uuid>` resolves a specific top-level discussion subject to the existing membership rules.
+
+Validation: `npm run build && node --env-file=.env --test scripts/notification-test.mjs` against a local development database. Tests cover publication/availability, deduplication, preferences, ownership, read state, membership changes, pagination, inactive users, transactional rollback, and source deletion. This version is in-app only; no push, email, reminder scheduler, or moderation notifications are sent.

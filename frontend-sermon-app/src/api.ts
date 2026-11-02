@@ -1,9 +1,26 @@
 import type { Envelope } from "./types";
-let token: string | null = null;
+const sessionKey = "onebody.session";
+function readSession() {
+  try {
+    return sessionStorage.getItem(sessionKey);
+  } catch {
+    return null;
+  }
+}
+let token: string | null = readSession();
 let onExpired = () => {};
 export const session = {
   set(value: string | null) {
     token = value;
+    try {
+      if (value) sessionStorage.setItem(sessionKey, value);
+      else sessionStorage.removeItem(sessionKey);
+    } catch {
+      /* Login still works in memory when browser storage is blocked. */
+    }
+  },
+  hasToken() {
+    return !!token;
   },
   onExpired(callback: () => void) {
     onExpired = callback;
@@ -25,7 +42,8 @@ export async function api<T>(
   const headers = new Headers(init.headers);
   if (init.body && !(init.body instanceof FormData))
     headers.set("Content-Type", "application/json");
-  if (token) headers.set("Authorization", `Bearer ${token}`);
+  const requestToken = token;
+  if (requestToken) headers.set("Authorization", `Bearer ${requestToken}`);
   try {
     response = await fetch(
       `${(import.meta.env.VITE_API_BASE_URL || "/api/v1").replace(/\/$/, "")}${path}`,
@@ -41,7 +59,8 @@ export async function api<T>(
     return { status: "success", data: undefined as T };
   const payload = await response.json().catch(() => null);
   if (!response.ok) {
-    if (response.status === 401 && token) onExpired();
+    if (response.status === 401 && requestToken && token === requestToken)
+      onExpired();
     const detail = payload?.errors
       ?.map(
         (e: { path?: string; message: string }) =>

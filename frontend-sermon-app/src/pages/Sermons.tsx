@@ -1,3 +1,4 @@
+import { BannerVideo } from "../components/BannerVideo";
 import { BibleLink } from "./Bible";
 import { BookmarkToggle } from "./Personal";
 import { useEffect, useState, type FormEvent } from "react";
@@ -59,7 +60,8 @@ export function SermonLibrary() {
         Messages to meet you where you are, and help you take your next step.
       </PageHeading>
       <section className="library-hero">
-        <div className="relative z-10">
+        <BannerVideo />
+        <div className="relative z-10 pr-5 pb-5">
           <span className="hero-label">
             <span className="h-1.5 w-1.5 rounded-full bg-peach" />
             LISTEN. REFLECT. LIVE IT OUT.
@@ -78,16 +80,6 @@ export function SermonLibrary() {
             Explore weekly growth
             <ArrowRight size={17} />
           </Link>
-        </div>
-        <div className="hero-landscape" aria-hidden="true">
-          <div className="sun" />
-          <div className="hill hill-one" />
-          <div className="hill hill-two" />
-          <Sprout
-            size={105}
-            strokeWidth={0.7}
-            className="absolute bottom-3 right-10 text-white/30"
-          />
         </div>
       </section>
       <div className="section-heading">
