@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState, type FormEvent } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Link,
   Outlet,
@@ -128,7 +128,7 @@ function AnalyticsCards({ stats: s }: { stats: Analytics }) {
               </div>
               <div className="h-2 bg-paper rounded-full">
                 <div
-                  className="h-2 bg-sage rounded-full"
+                  className="h-2 bg-secondary rounded-full"
                   style={{ width: `${(count / maximum) * 100}%` }}
                 />
               </div>
@@ -295,6 +295,21 @@ export function SermonEditor() {
 }
 function SermonForm({ sermon }: { sermon?: Sermon }) {
   const navigate = useNavigate();
+  const client = useQueryClient();
+  const [persistedId, setPersistedId] = useState(sermon?.id);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [removeImage, setRemoveImage] = useState(false);
+  const [imageError, setImageError] = useState<string | null>(null);
+  useEffect(() => {
+    if (!imageFile) {
+      setPreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(imageFile);
+    setPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [imageFile]);
   const keys = [
     ["manage-sermons"],
     ["sermons"],
@@ -306,11 +321,34 @@ function SermonForm({ sermon }: { sermon?: Sermon }) {
     ["bookmarks"],
   ];
   const save = useAction(
-    (body: unknown) =>
-      api<Sermon>(
-        sermon ? `/sermons/${sermon.id}` : "/sermons",
-        send(sermon ? "PATCH" : "POST", body),
-      ),
+    async (body: unknown) => {
+      const saved = await api<Sermon>(
+        persistedId ? `/sermons/${persistedId}` : "/sermons",
+        send(persistedId ? "PATCH" : "POST", body),
+      );
+      setPersistedId(saved.data.id);
+      try {
+        if (imageFile) {
+          const data = new FormData();
+          data.set("image", imageFile);
+          await api<Sermon>(`/sermons/${saved.data.id}/image`, {
+            method: "PUT",
+            body: data,
+          });
+        } else if (removeImage)
+          await api<Sermon>(`/sermons/${saved.data.id}/image`, {
+            method: "DELETE",
+          });
+      } catch (error) {
+        await Promise.all(
+          keys.map((queryKey) => client.invalidateQueries({ queryKey })),
+        );
+        throw new Error(
+          `Sermon saved, but the image change failed. ${error instanceof Error ? error.message : "Try again."} You can retry Save sermon without creating a duplicate.`,
+        );
+      }
+      return saved;
+    },
     keys,
     () => navigate("/dashboard/sermons"),
   );
@@ -405,6 +443,63 @@ function SermonForm({ sermon }: { sermon?: Sermon }) {
             defaultValue={sermon?.content ?? ""}
           />
         </label>
+        <div className="space-y-3">
+          <label className="field">
+            Sermon image
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              disabled={save.isPending}
+              onChange={(event) => {
+                const file = event.target.files?.[0] ?? null;
+                if (
+                  file &&
+                  (!["image/jpeg", "image/png", "image/webp"].includes(
+                    file.type,
+                  ) ||
+                    file.size > 5 * 1024 * 1024)
+                ) {
+                  setImageError(
+                    "Choose a JPEG, PNG, or WebP image of 5 MiB or smaller.",
+                  );
+                  setImageFile(null);
+                  event.target.value = "";
+                  return;
+                }
+                setImageError(null);
+                setImageFile(file);
+                setRemoveImage(false);
+              }}
+            />
+          </label>
+          <p className="text-xs text-muted">
+            Shown at the top of the sermon card. JPEG, PNG, or WebP, up to 5
+            MiB.
+          </p>
+          {(preview || sermon?.imageUrl) && !removeImage && (
+            <img
+              src={preview ?? sermon!.imageUrl!}
+              alt="Sermon image preview"
+              className="w-full max-w-sm h-40 rounded-xl object-cover"
+            />
+          )}
+          {sermon?.imageUrl && !imageFile && (
+            <label className="flex gap-2 items-center text-sm">
+              <input
+                type="checkbox"
+                checked={removeImage}
+                disabled={save.isPending}
+                onChange={(event) => setRemoveImage(event.target.checked)}
+              />
+              Remove current image
+            </label>
+          )}
+          {imageError && (
+            <p role="alert" className="text-sm text-accent">
+              {imageError}
+            </p>
+          )}
+        </div>
         <div className="form-grid">
           <label className="field">
             Audio URL
@@ -435,7 +530,7 @@ function SermonForm({ sermon }: { sermon?: Sermon }) {
         <div className="flex gap-3 flex-wrap">
           <button
             className="btn-primary"
-            disabled={save.isPending || remove.isPending}
+            disabled={save.isPending || remove.isPending || !!imageError}
           >
             {save.isPending ? "Saving…" : "Save sermon"}
           </button>
@@ -490,7 +585,7 @@ export function ManagePlans() {
             {query.data.data.map((p) => (
               <Link
                 key={p.id}
-                className="panel p-6 hover:border-sage"
+                className="panel p-6 hover:border-secondary"
                 to={`/dashboard/plans/${p.id}/edit`}
               >
                 <h2 className="font-serif text-2xl">{p.title}</h2>

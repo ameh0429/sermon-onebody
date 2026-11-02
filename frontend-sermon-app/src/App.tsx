@@ -2,6 +2,8 @@ import { Avatar } from "./Avatar";
 import { useEffect } from "react";
 import {
   BookOpen,
+  BookMarked,
+  Menu,
   Bookmark,
   Users,
   LayoutDashboard,
@@ -37,6 +39,7 @@ import {
   PlanEditor,
   UsersPage,
 } from "./pages/Dashboard";
+import { BibleReader } from "./pages/Bible";
 function Layout() {
   const { user, logout } = useAuth();
   const location = useLocation();
@@ -58,6 +61,7 @@ function Layout() {
       mobile: "Sermons",
       icon: BookOpen,
     },
+    { to: "/bible", label: "Bible", mobile: "Bible", icon: BookMarked },
     { to: "/growth", label: "Weekly growth", mobile: "Growth", icon: Sprout },
     {
       to: "/personal",
@@ -82,6 +86,12 @@ function Layout() {
           },
         ]
       : []),
+  ];
+  const mobileLinks = [
+    ...links.filter((l) =>
+      ["/sermons", "/bible", "/growth", "/groups"].includes(l.to),
+    ),
+    { to: "/more", mobile: "More", label: "More", icon: Menu },
   ];
   return (
     <div className="app-shell">
@@ -155,7 +165,7 @@ function Layout() {
         <header className="desktop-header">
           <span>A place to listen, reflect, and grow.</span>
           <span className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-sage" />
+            <span className="h-1.5 w-1.5 rounded-full bg-secondary" />
             GROW AT YOUR OWN PACE
           </span>
         </header>
@@ -163,29 +173,33 @@ function Layout() {
         <main id="main-content" className="main-content" tabIndex={-1}>
           <Outlet />
         </main>
-        <footer className="app-footer">
-          Love: Hearts, Eyes, Hands, Feet.
-        </footer>
+        <footer className="app-footer">Love: Hearts, Eyes, Hands, Feet.</footer>
       </div>
       <nav
         className="bottom-nav"
         style={{
-          gridTemplateColumns: `repeat(${Math.min(links.length, 5)}, minmax(0, 1fr))`,
+          gridTemplateColumns: `repeat(${mobileLinks.length}, minmax(0, 1fr))`,
         }}
         aria-label="Mobile navigation"
       >
-        {links
-          .filter((l) => user.role === "member" || l.to !== "/profile")
-          .map(({ to, mobile, icon: Icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              <Icon size={21} strokeWidth={1.7} />
-              <span>{mobile}</span>
-            </NavLink>
-          ))}
+        {mobileLinks.map(({ to, mobile, icon: Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) =>
+              isActive ||
+              (to === "/more" &&
+                ["/personal", "/profile", "/dashboard"].some((path) =>
+                  location.pathname.startsWith(path),
+                ))
+                ? "active"
+                : ""
+            }
+          >
+            <Icon size={21} strokeWidth={1.7} />
+            <span>{mobile}</span>
+          </NavLink>
+        ))}
       </nav>
     </div>
   );
@@ -197,6 +211,8 @@ export default function App() {
       <Route path="/register" element={<AccountPage register />} />
       <Route element={<Layout />}>
         <Route index element={<Navigate to="/sermons" replace />} />
+        <Route path="bible" element={<BibleReader />} />
+        <Route path="more" element={<MorePage />} />
         <Route path="sermons" element={<SermonLibrary />} />
         <Route path="sermons/:sermonId" element={<SermonDetail />} />
         <Route path="growth" element={<GrowthLibrary />} />
@@ -234,5 +250,28 @@ export default function App() {
         />
       </Route>
     </Routes>
+  );
+}
+
+function MorePage() {
+  const { user } = useAuth();
+  return (
+    <>
+      <h1 className="page-title mb-6">Your OneBody space.</h1>
+      <nav className="grid gap-4 sm:grid-cols-2" aria-label="More navigation">
+        {[
+          { to: "/personal", label: "Bookmarks" },
+          { to: "/personal/journal", label: "Private journal" },
+          { to: "/profile", label: "My profile" },
+          ...(user?.role !== "member"
+            ? [{ to: "/dashboard", label: "Dashboard" }]
+            : []),
+        ].map((l) => (
+          <Link key={l.to} className="panel p-6 text-link" to={l.to}>
+            {l.label}
+          </Link>
+        ))}
+      </nav>
+    </>
   );
 }

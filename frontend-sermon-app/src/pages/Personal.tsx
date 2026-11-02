@@ -98,7 +98,7 @@ export function BookmarksPage() {
           <div className="sermon-grid">
             {query.data.data.map((b) => (
               <article className="panel p-6" key={b.id}>
-                <BookmarkIcon className="text-sage mb-5" size={23} />
+                <BookmarkIcon className="text-secondary mb-5" size={23} />
                 <Link
                   to={`/sermons/${b.sermonId}`}
                   className="font-serif text-2xl text-link"
@@ -158,7 +158,7 @@ export function JournalPage() {
             {query.data.data.map((entry) => (
               <Link
                 key={entry.id}
-                className="panel p-6 hover:border-sage"
+                className="panel p-6 hover:border-secondary"
                 to={`/personal/journal/${entry.id}`}
               >
                 <div className="flex items-center gap-2 text-xs text-muted">

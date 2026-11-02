@@ -49,7 +49,7 @@ test("system default follows live device appearance without writing storage", as
   await expect(page.getByRole("group", { name: "Color theme" })).toHaveCount(0);
   expect(
     await page.evaluate(() => getComputedStyle(document.body).backgroundColor),
-  ).toBe("rgb(20, 32, 25)");
+  ).toBe("rgb(16, 13, 29)");
   expect(
     await page.evaluate(() => localStorage.getItem("onebody.theme")),
   ).toBeNull();
@@ -86,7 +86,7 @@ test("explicit choice persists, overrides device setting and synchronizes tabs",
   ).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute(
     "content",
-    "#142019",
+    "#100d1d",
   );
   const second = await context.newPage();
   await second.emulateMedia({ colorScheme: "light" });
@@ -130,7 +130,7 @@ test("invalid preferences fall back to system and blocked storage does not break
   ).toHaveAttribute("aria-pressed", "true");
   await expect(
     blocked.getByRole("heading", { name: "A little about you." }),
-  ).toHaveCSS("color", "rgb(237, 242, 233)");
+  ).toHaveCSS("color", "rgb(245, 239, 250)");
   expect(
     await blocked.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,

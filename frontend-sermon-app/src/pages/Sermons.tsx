@@ -1,3 +1,4 @@
+import { BibleLink } from "./Bible";
 import { BookmarkToggle } from "./Personal";
 import { useEffect, useState, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -60,13 +61,13 @@ export function SermonLibrary() {
       <section className="library-hero">
         <div className="relative z-10">
           <span className="hero-label">
-            <span className="h-1.5 w-1.5 rounded-full bg-lime" />
+            <span className="h-1.5 w-1.5 rounded-full bg-peach" />
             LISTEN. REFLECT. LIVE IT OUT.
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl leading-tight mt-5">
             Let the Word take root.
           </h2>
-          <p className="mt-4 text-green-50/75 max-w-sm text-sm leading-relaxed">
+          <p className="mt-4 text-white/85 max-w-sm text-sm leading-relaxed">
             More than a Sunday message. Find a truth to carry with you into the
             everyday.
           </p>
@@ -85,7 +86,7 @@ export function SermonLibrary() {
           <Sprout
             size={105}
             strokeWidth={0.7}
-            className="absolute bottom-3 right-10 text-green-100/40"
+            className="absolute bottom-3 right-10 text-white/30"
           />
         </div>
       </section>
@@ -118,7 +119,7 @@ export function SermonLibrary() {
             </div>
           </div>
           <button
-            className={`btn-secondary ${filterCount ? "border-sage!" : ""}`}
+            className={`btn-secondary ${filterCount ? "border-secondary!" : ""}`}
             type="button"
             aria-expanded={filters}
             aria-controls="sermon-filters"
@@ -232,12 +233,27 @@ export function SermonLibrary() {
   );
 }
 function SermonCard({ sermon, index }: { sermon: Sermon; index: number }) {
+  const [failedImage, setFailedImage] = useState<string | null>(null);
+  const showImage = !!sermon.imageUrl && sermon.imageUrl !== failedImage;
   return (
     <Link to={`/sermons/${sermon.id}`} className="sermon-card group">
       <div className={`sermon-art art-${index % 3}`} aria-hidden="true">
-        <div className="art-orb" />
-        <div className="art-hill" />
-        <span className="art-caption">{sermon.passage}</span>
+        {showImage ? (
+          <img
+            src={sermon.imageUrl!}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover"
+            onError={() => setFailedImage(sermon.imageUrl)}
+          />
+        ) : (
+          <>
+            <div className="art-orb" />
+            <div className="art-hill" />
+            <span className="art-caption">{sermon.passage}</span>
+          </>
+        )}
         <span className="art-play">
           {sermon.audioUrl || sermon.videoUrl ? (
             <Play size={18} fill="currentColor" />
@@ -467,6 +483,9 @@ export function SermonDetail() {
           </span>
         </p>
       </header>
+      <div className="mb-5">
+        <BibleLink reference={s.passage} />
+      </div>
       <BookmarkToggle sermonId={s.id} />
       <Link
         className="text-link inline-block text-sm mb-6"

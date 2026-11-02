@@ -1,0 +1,18 @@
+{
+  "asv": {
+    "sourceUrl": "https://raw.githubusercontent.com/scrollmapper/bible_databases/59b18c5af5845728c275d5b7178ad0d024172b1f/formats/json/ASV.json",
+    "sourceSha256": "602445e22c280a682ac4c489117ead179271f5ee50a78ee4531b249c71e7ce99",
+    "sha256": "a0e63c89e088f18d42bf3b4aec713e3c1c6f2a481512bf50f63133ac2300cdb7",
+    "books": 66,
+    "chapters": 1189,
+    "verses": 31102
+  },
+  "ylt": {
+    "sourceUrl": "https://raw.githubusercontent.com/scrollmapper/bible_databases/59b18c5af5845728c275d5b7178ad0d024172b1f/formats/json/YLT.json",
+    "sourceSha256": "d55ef42dae715c4fc5d00049011b818a42a99e0ff419f5f08bc37cea0b4f12e3",
+    "sha256": "e2e1954dc0352c1aa5e4b23631f302d2265051a7d54bac24e0d96635a0fdb35b",
+    "books": 66,
+    "chapters": 1189,
+    "verses": 31102
+  }
+}

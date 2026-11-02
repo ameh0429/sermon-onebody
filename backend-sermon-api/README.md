@@ -201,3 +201,56 @@ node --env-file=.env --test scripts/avatar-test.mjs
 ```
 
 The tests inject an in-memory storage adapter into `createApp` and exercise real HTTP multipart parsing, Sharp processing, authentication, PostgreSQL transactions, concurrent replacement, failure cleanup, deactivation, rate limits and CORS. They do not contact Cloudinary or modify real profile photos. Browser tests separately cover previews, multipart requests, shared avatars and error handling with explicitly intercepted storage responses. A real Cloudinary upload/delete smoke check is still required after credentials are configured.
+
+## Bible reader
+
+The member app includes an online reader with **American Standard Version (1901)** and **Young's Literal Translation (1898)**. These public-domain editions are bundled on the backend with source revision, licenses and SHA-256 integrity checks under `data/bibles/`; no Bible API key, database migration or external service is required. Include that directory in deployment artifacts along with `dist/`. See `data/bibles/README.md` for provenance and the supported 66-book canon. Optional YouVersion editions are fetched on demand; copyrighted Bible text is never bundled.
+
+Authenticated endpoints, documented under the Swagger **Bible** tag:
+
+| Endpoint | Query / behavior |
+|---|---|
+| `GET /api/v1/bible/translations` | Local editions and English editions currently licensed to the configured YouVersion key |
+| `GET /api/v1/bible/books` | `translationId=asv` (default), `ylt`, or `yv-<API version ID>`; book IDs/chapter counts |
+| `GET /api/v1/bible/chapters` | `translationId`, `bookId=JHN`; chapter/verse counts |
+| `GET /api/v1/bible/passages` | `translationId` plus either `reference=John 3:16–18` or `bookId=JHN&chapter=3&fromVerse=16&toVerse=18` |
+
+Passages are restricted to a single chapter per request. Common English abbreviations and Arabic/Roman prefixes are supported (`Eph. 2`, `1 John 1:9`, `I John 1:9`). Multi-chapter/multi-book/comma-separated references return a useful error; callers can use structured navigation instead. Verse and chapter bounds are checked against the selected edition, and previous/next links cross book boundaries. Source editions' empty numbered records receive a note, not fabricated text. API responses have `Cache-Control: private, no-store`; corpus data is cached only in server process memory, not per user.
+
+Validation against a local development database:
+
+```bash
+npm run build
+node --env-file=.env --test scripts/bible-test.mjs
+```
+
+The suite checks both complete editions, pinned data checksums, known differing translation text, aliases/ranges, omission records, navigation boundaries, input errors, authentication, response caching policy and Swagger. Its temporary user is removed after testing.
+
+### Optional YouVersion editions
+
+Set `YVP_APP_KEY` in the backend environment and restart it. (`YOUVERSION_APP_KEY` is accepted as a legacy alias.) No migration is needed. Never commit a real key. With no key, ASV/YLT continue to work.
+
+The catalog fetches `/v1/bibles` using `language_ranges[]=en`, `all_available=false`, `page_size=99`, and every `next_page_token`. Only versions returned by the licensed collection can be requested, including by direct URL. IDs and availability are discovered rather than hardcoded. NIV/Biblica access does not imply NLT or NKJV access: accept their appropriate publisher licenses and confirm they appear in the API collection first. This integration lists all available English editions.
+
+The official `@youversion/platform-core` SDK plus `jsdom` produces sanitized/transformed passage HTML, current publisher attribution on **every passage request**, and the required YouVersion Bible/font stylesheet URLs. Missing attribution blocks display. The index supplies edition-specific chapter/verse bounds; local ASV verse counts are not substituted for licensed editions. Responses use `private, no-store`; licensed passages and attribution have no server cache or offline download. Collection failure returns the local editions with a visible warning; a selected provider failure offers ASV/YLT without silently substituting text.
+
+The required font stylesheet URL contains the App Key and is visible in the browser, as specified by YouVersion's display guide. This App Key is not a private server secret like the Cloudinary API secret. Do not log the URL or bake credentials into frontend builds. Hosting CSP must allow `https://cdn.youversion.com` for styles/fonts and `https://api.youversion.com` for styles. Font files stay on YouVersion's CDN. Keep Bible access consistent with your accepted publisher agreements and the non-commercial/no-ads/no-paywall application commitments.
+
+Validation without a live key (invented fixtures, official SDK rendering):
+
+```sh
+npm run build
+node --test scripts/youversion-test.mjs
+```
+
+A real App Key and network access to YouVersion are required to verify your account's version list and live passages.
+
+If the reader reports that YouVersion translations could not be loaded, run `npm run check:youversion` **from this backend directory**. It checks `.env`, the live licensed collection, and NIV/NLT/NKJV availability without printing the App Key or upstream response bodies. Backend logs now distinguish HTTP failures (`upstreamStatus`) from invalid response fields (`response_shape`). A terminal `next_page_token: null` is supported. Local `.env` changes are not synced into remote development workspaces.
+
+### Sermon card images
+
+Leaders/admins can choose a **Sermon image** while creating or editing a sermon. Images fill the top area of the library card using a centered cover crop; missing/unloadable images retain the decorative artwork. Use landscape artwork for the best fit. Images are public Cloudinary media using the existing backend `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` configuration.
+
+Apply `migrations/20261102_sermon_images.sql` before starting a backend with `DB_SYNC=false`. Development `DB_SYNC=true` adds the nullable fields on startup. Existing sermons need no image. `imageUrl` is returned by sermon lists/details; image bytes use `PUT /api/v1/sermons/:id/image` (multipart field `image`) and removal uses `DELETE` on the same route. Both require leader/admin permissions. Supported inputs: still JPEG/PNG/WebP, at most 5 MiB and 16 megapixels. The server strips metadata and preserves the source aspect ratio while resizing to at most 1600×1600. Changes invalidate the sermon list cache; replacement failures retain the previous image. Removing a sermon also cleans up its managed image.
+
+The form saves sermon text before uploading the image. If upload fails, it explains the partial save and retries against the same sermon ID, avoiding duplicate records. Mock-storage API checks: `npm run build && node --env-file=.env --test scripts/sermon-image-test.mjs`.

@@ -11,7 +11,7 @@ function options() {
   const cloud_name = process.env.CLOUDINARY_CLOUD_NAME;
   const api_key = process.env.CLOUDINARY_API_KEY;
   const api_secret = process.env.CLOUDINARY_API_SECRET;
-  if (!cloud_name || !api_key || !api_secret) throw new AppError(503, 'Profile photo storage is not configured. Please contact your administrator.');
+  if (!cloud_name || !api_key || !api_secret) throw new AppError(503, 'Image storage is not configured. Please contact your administrator.');
   return { cloud_name, api_key, api_secret, secure: true };
 }
 // Explicit per-call credentials avoid global SDK state and remain entirely on the backend.

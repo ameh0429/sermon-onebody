@@ -32,7 +32,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       document.documentElement.style.colorScheme = dark ? "dark" : "light";
       document
         .querySelector('meta[name="theme-color"]')
-        ?.setAttribute("content", dark ? "#142019" : "#254c3c");
+        ?.setAttribute("content", dark ? "#100d1d" : "#3e285b");
     }
     apply();
     media.addEventListener("change", apply);
