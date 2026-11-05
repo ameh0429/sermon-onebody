@@ -8,7 +8,6 @@ import {
   Leaf,
   LogOut,
   Mail,
-  ShieldCheck,
 } from "lucide-react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../auth";
@@ -52,7 +51,7 @@ export function AccountPage({ register = false }: { register?: boolean }) {
   }
   return (
     <div className="auth-page">
-      <section className="auth-story">
+      <section className="auth-story isolate">
         <Link to="/login">
           <Brand />
         </Link>
@@ -65,6 +64,14 @@ export function AccountPage({ register = false }: { register?: boolean }) {
             Make room for the Word. Discover a message, find a fresh
             perspective, and carry it into your week.
           </p>
+          <img
+            src="https://res.cloudinary.com/dxpopimi3/image/upload/v1793655639/ScreenShot_11_2_2026_10_04_26_PM_y3z02k.png"
+            alt=""
+            className="auth-brand-symbols mt-6 block h-auto max-h-40 w-full object-contain object-left"
+            loading="lazy"
+            decoding="async"
+            onError={event => { event.currentTarget.style.display = "none"; }}
+          />
           <div className="auth-illustration" aria-hidden="true">
             <div className="sun" />
             <div className="hill hill-one" />
@@ -186,13 +193,6 @@ export function AccountPage({ register = false }: { register?: boolean }) {
               {register ? "Sign in" : "Create an account"}
             </Link>
           </p>
-          <div className="mt-9 pt-6 border-t border-line flex gap-2 text-xs leading-relaxed text-muted">
-            <ShieldCheck size={17} className="shrink-0" />
-            <p>
-              Your session stays in this tab’s memory. Refreshing or closing the
-              app signs you out.
-            </p>
-          </div>
         </div>
       </section>
     </div>
@@ -302,11 +302,6 @@ export function ProfilePage() {
             )}
           </section>
           <section className="panel p-6">
-            <h2 className="font-semibold mb-2">Your session</h2>
-            <p className="text-sm text-muted mb-4 leading-relaxed">
-              You’ll need to sign in again after refreshing or closing the app.
-              Your completed lessons stay saved to your account.
-            </p>
             <button
               onClick={logout}
               className="text-link flex items-center gap-2"
