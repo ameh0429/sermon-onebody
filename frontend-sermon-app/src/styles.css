@@ -719,7 +719,8 @@
 .auth-brand-symbols {
   /* Trim the screenshot border so inversion cannot turn its edge lines white. */
   clip-path: inset(4px);
-  margin-left: -4px;
+  /* Offset the blank left gutter inside the image so the heart aligns with the copy. */
+  margin-left: -8%;
   mix-blend-mode: screen;
   filter: contrast(1.1) grayscale(1) invert(1) sepia(1) saturate(2) hue-rotate(345deg) brightness(1.8);
 }
