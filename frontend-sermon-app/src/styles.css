@@ -441,21 +441,13 @@
     @apply grid min-h-dvh lg:grid-cols-2;
   }
   .auth-story {
-    @apply hidden lg:flex min-h-dvh flex-col justify-between overflow-hidden bg-primary text-white px-12 py-10 xl:px-20;
+    @apply hidden lg:flex min-h-dvh flex-col overflow-hidden bg-primary text-white px-12 py-10 xl:px-20;
   }
   .auth-story .brand-dot {
     @apply text-peach;
   }
   .auth-story-content {
     @apply mt-14;
-  }
-  .auth-illustration {
-    @apply relative h-52 overflow-hidden mt-8;
-  }
-  .auth-illustration .sun {
-    right: 50px;
-    width: 90px;
-    height: 90px;
   }
   .auth-form-section {
     @apply relative flex min-h-dvh flex-col justify-center items-center px-6 py-14 sm:px-12;
@@ -703,7 +695,7 @@
     ),
     var(--brand-gradient);
 }
-.auth-story > p:last-child {
+.auth-story-caption {
   max-width: 24rem;
   line-height: 1.6;
 }
@@ -727,6 +719,7 @@
 .auth-brand-symbols {
   /* Trim the screenshot border so inversion cannot turn its edge lines white. */
   clip-path: inset(4px);
+  margin-left: -4px;
   mix-blend-mode: screen;
   filter: contrast(1.1) grayscale(1) invert(1) sepia(1) saturate(2) hue-rotate(345deg) brightness(1.8);
 }

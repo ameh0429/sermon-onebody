@@ -67,25 +67,15 @@ export function AccountPage({ register = false }: { register?: boolean }) {
           <img
             src="https://res.cloudinary.com/dxpopimi3/image/upload/v1793655639/ScreenShot_11_2_2026_10_04_26_PM_y3z02k.png"
             alt=""
-            className="auth-brand-symbols mt-6 block h-auto max-h-40 w-full object-contain object-left"
+            className="auth-brand-symbols mt-6 block h-auto w-full"
             loading="lazy"
             decoding="async"
             onError={event => { event.currentTarget.style.display = "none"; }}
           />
-          <div className="auth-illustration" aria-hidden="true">
-            <div className="sun" />
-            <div className="hill hill-one" />
-            <div className="hill hill-two" />
-            <Leaf
-              className="absolute bottom-12 left-10 text-peach"
-              size={94}
-              strokeWidth={0.8}
-            />
-          </div>
+          <p className="auth-story-caption mt-6 text-xs text-white/80">
+            Love is Changing our Hearts, Lighting our Eyes, Moving our Hands and Leading our Feet.
+          </p>
         </div>
-        <p className="text-xs text-white/80">
-          Love is Changing our Hearts, Lighting our Eyes, Moving our Hands and Leading our Feet.
-        </p>
       </section>
       <section className="auth-form-section">
         <div className="auth-mobile-brand">
